@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+
 import { AuthService } from '../../services/auth/AuthService';
 import logger from '../../utils/logger';
 
@@ -13,10 +14,12 @@ export class AuthController {
         email: user.email,
         createdAt: user.createdAt,
       });
-    } catch (err: any) {
-      logger.error('Registration error: %s', err && err.message ? err.message : err);
-      
-      return res.status(400).json({ error: 'Registration failed. Please try again.' });
+    } catch (error) {
+      logger.error('Registration error: %s', error);
+
+      return res
+        .status(400)
+        .json({ error: 'Registration failed. Please try again.' });
     }
   }
 
@@ -33,10 +36,12 @@ export class AuthController {
           createdAt: user.createdAt,
         },
       });
-    } catch (err: any) {
-      logger.error('Login error: %s', err && err.message ? err.message : err);
-      
-      return res.status(400).json({ error: 'Login failed. Please check your credentials.' });
+    } catch (error) {
+      logger.error('Login error: %s', error);
+
+      return res
+        .status(400)
+        .json({ error: 'Login failed. Please check your credentials.' });
     }
   }
-} 
+}

@@ -78,4 +78,4 @@ describe('Auth API', () => {
 
     expect(res.body.error).toBe('Login failed. Please check your credentials.');
   });
-}); 
+});

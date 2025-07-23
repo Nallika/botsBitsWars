@@ -5,6 +5,9 @@ node_modules
 .pnp
 .pnp.js
 
+# typescript
+tsconfig.tsbuildinfo
+
 # testing
 coverage
 
@@ -15,6 +18,7 @@ build
 
 # other
 dist/
+docs/
 
 # misc
 .DS_Store

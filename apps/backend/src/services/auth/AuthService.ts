@@ -1,10 +1,10 @@
-import { User, IUser } from '../../models/User';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+
+import { User, IUser } from '../../models/User';
 import { SALT_ROUNDS } from '../../constants';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'changeme';
-
+const JWT_SECRET = process.env.JWT_SECRET as string;
 export class AuthService {
   static async register(email: string, password: string): Promise<IUser> {
     const existing = await User.findOne({ email });
@@ -20,7 +20,10 @@ export class AuthService {
     return user;
   }
 
-  static async login(email: string, password: string): Promise<{ user: IUser; token: string }> {
+  static async login(
+    email: string,
+    password: string
+  ): Promise<{ user: IUser; token: string }> {
     const user = await User.findOne({ email });
 
     if (!user) {
@@ -33,12 +36,10 @@ export class AuthService {
       throw new Error('Invalid credentials');
     }
 
-    const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET, {
+      expiresIn: '7d',
+    });
 
     return { user, token };
   }
-
-  static verifyToken(token: string): any {
-    return jwt.verify(token, JWT_SECRET);
-  }
-} 
+}

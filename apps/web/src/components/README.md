@@ -15,21 +15,25 @@ components/
 ## Atomic Design Principles
 
 ### Atoms
+
 - Smallest functional units
 - Reusable across the application
 - Examples: Button, Input, Typography, Icon
 
 ### Molecules
+
 - Simple combinations of atoms
 - Have a specific function
 - Examples: ChatInput, BotSelector, MessageBubble, VoteButton
 
 ### Organisms
+
 - Complex UI components
 - Composed of molecules and atoms
 - Examples: ChatWindow, BotSelectionPanel, SessionHeader, ResultsModal
 
 ### Templates
+
 - Page-level layouts
 - Define the structure and arrangement
 - Examples: ChatLayout, AuthLayout, HomeLayout
@@ -41,4 +45,4 @@ import { Button } from '@/components/atoms/Button';
 import { ChatInput } from '@/components/molecules/ChatInput';
 import { ChatWindow } from '@/components/organisms/ChatWindow';
 import { ChatLayout } from '@/components/templates/ChatLayout';
-``` 
+```

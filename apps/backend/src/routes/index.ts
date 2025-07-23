@@ -1,9 +1,10 @@
 import express from 'express';
-import { AuthController } from '../controllers/auth/AuthController';
+import chatRoutes from './chat';
+import authRoutes from './auth';
 
 const routes = express.Router();
 
-routes.post('/auth/register', AuthController.register);
-routes.post('/auth/login', AuthController.login);
+routes.use('/auth', authRoutes);
+routes.use('/chat', chatRoutes);
 
 export default routes;

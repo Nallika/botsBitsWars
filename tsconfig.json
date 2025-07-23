@@ -17,7 +17,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@repo/*": ["./packages/*"]
+      "@repo/*": ["./packages/*"],
+      "@shared-types/*": ["./packages/shared-types/src/*"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx"],

@@ -21,13 +21,10 @@ export class DBManager {
     }
 
     try {
-      await mongoose.connect(
-        uri,
-        {
-          useNewUrlParser: true,
-          useUnifiedTopology: true,
-        } as any
-      );
+      await mongoose.connect(uri, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      } as any);
       this.isConnected = true;
       logger.info('MongoDB connected');
     } catch (err) {
@@ -45,4 +42,20 @@ export class DBManager {
     this.isConnected = false;
     logger.info('MongoDB disconnected');
   }
-} 
+
+  // ChatSession CRUD methods
+  public static async createSession(sessionData: any) {
+    const { ChatSession } = await import('../models/ChatSession');
+    return ChatSession.create(sessionData);
+  }
+
+  public static async getSessionById(sessionId: string) {
+    const { ChatSession } = await import('../models/ChatSession');
+    return ChatSession.findOne({ sessionId });
+  }
+
+  public static async updateSession(sessionId: string, update: any) {
+    const { ChatSession } = await import('../models/ChatSession');
+    return ChatSession.findOneAndUpdate({ sessionId }, update, { new: true });
+  }
+}

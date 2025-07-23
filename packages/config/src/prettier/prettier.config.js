@@ -9,11 +9,7 @@ module.exports = {
   bracketSameLine: false,
   arrowParens: 'avoid',
   endOfLine: 'lf',
-  plugins: [
-    'prettier-plugin-tailwindcss',
-    'prettier-plugin-organize-imports', 
-    'prettier-plugin-jsdoc',
-  ],
+  plugins: ['prettier-plugin-tailwindcss'],
   overrides: [
     {
       files: '*.json',

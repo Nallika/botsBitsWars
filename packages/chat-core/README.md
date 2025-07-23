@@ -37,4 +37,4 @@ import type { ChatSession, Message } from '@repo/chat-core/types';
 ## Dependencies
 
 - `@repo/shared-types` - Shared TypeScript interfaces
-- `socket.io-client` - Real-time communication 
+- `socket.io-client` - Real-time communication

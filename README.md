@@ -6,7 +6,7 @@ An online chat application that allows users to compare responses from multiple 
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - pnpm 8+
 - MongoDB (local or cloud)
 
@@ -56,6 +56,7 @@ botsBitsWars/
 ## 🛠️ Technology Stack
 
 ### Frontend
+
 - **Framework**: Next.js 14 with React 18
 - **Language**: TypeScript
 - **Styling**: SCSS Modules
@@ -63,6 +64,7 @@ botsBitsWars/
 - **Real-time Communication**: Socket.IO Client
 
 ### Backend
+
 - **Runtime**: Node.js with TypeScript
 - **Framework**: Express.js
 - **Real-time Communication**: Socket.IO
@@ -70,6 +72,7 @@ botsBitsWars/
 - **Database**: MongoDB with Mongoose
 
 ### Infrastructure
+
 - **Monorepo**: Turborepo
 - **Containerization**: Docker
 - **Package Management**: pnpm

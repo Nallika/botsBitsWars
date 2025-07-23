@@ -16,49 +16,58 @@ console.log(`🔗 Proxy: http://localhost:${PORT}`);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'ok', 
+  res.json({
+    status: 'ok',
     timestamp: new Date().toISOString(),
     services: {
       api: API_URL,
-      web: WEB_URL
-    }
+      web: WEB_URL,
+    },
   });
 });
 
 // Proxy API requests to backend
-app.use('/api', createProxyMiddleware({
-  target: API_URL,
-  changeOrigin: true,
-  logLevel: 'silent',
-  onError: (err, req, res) => {
-    console.error('❌ API Proxy Error:', err.message);
-    res.status(500).json({ 
-      error: 'API service unavailable',
-      message: 'Backend service is not running. Please start it with: pnpm dev:api'
-    });
-  }
-}));
+app.use(
+  '/api',
+  createProxyMiddleware({
+    target: API_URL,
+    changeOrigin: true,
+    logLevel: 'silent',
+    onError: (err, req, res) => {
+      console.error('❌ API Proxy Error:', err.message);
+      res.status(500).json({
+        error: 'API service unavailable',
+        message:
+          'Backend service is not running. Please start it with: pnpm dev:api',
+      });
+    },
+  })
+);
 
 // Proxy Socket.IO requests to backend
-app.use('/socket.io', createProxyMiddleware({
-  target: API_URL,
-  changeOrigin: true,
-  ws: true, // Enable WebSocket proxying
-  logLevel: 'silent',
-  onError: (err, req, res) => {
-    console.error('❌ Socket.IO Proxy Error:', err.message);
-  }
-}));
+app.use(
+  '/socket.io',
+  createProxyMiddleware({
+    target: API_URL,
+    changeOrigin: true,
+    ws: true, // Enable WebSocket proxying
+    logLevel: 'silent',
+    onError: (err, req, res) => {
+      console.error('❌ Socket.IO Proxy Error:', err.message);
+    },
+  })
+);
 
 // Proxy all other requests to Next.js
-app.use('/', createProxyMiddleware({
-  target: WEB_URL,
-  changeOrigin: true,
-  logLevel: 'silent',
-  onError: (err, req, res) => {
-    console.error('❌ Web Proxy Error:', err.message);
-    res.status(500).send(`
+app.use(
+  '/',
+  createProxyMiddleware({
+    target: WEB_URL,
+    changeOrigin: true,
+    logLevel: 'silent',
+    onError: (err, req, res) => {
+      console.error('❌ Web Proxy Error:', err.message);
+      res.status(500).send(`
       <html>
         <head><title>Service Unavailable</title></head>
         <body>
@@ -68,8 +77,9 @@ app.use('/', createProxyMiddleware({
         </body>
       </html>
     `);
-  }
-}));
+    },
+  })
+);
 
 // Start server
 app.listen(PORT, () => {
@@ -95,4 +105,4 @@ process.on('SIGINT', () => {
 process.on('SIGTERM', () => {
   console.log('\n🛑 Shutting down proxy server...');
   process.exit(0);
-}); 
+});

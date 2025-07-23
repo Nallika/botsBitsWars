@@ -9,13 +9,13 @@ const nextConfig = {
       return [
         {
           source: '/api/:path*',
-          destination: process.env.NEXT_PUBLIC_API_HOST 
+          destination: process.env.NEXT_PUBLIC_API_HOST
             ? `${process.env.NEXT_PUBLIC_API_HOST}/api/:path*`
             : 'http://localhost:3001/api/:path*',
         },
         {
           source: '/socket.io/:path*',
-          destination: process.env.NEXT_PUBLIC_API_HOST 
+          destination: process.env.NEXT_PUBLIC_API_HOST
             ? `${process.env.NEXT_PUBLIC_API_HOST}/socket.io/:path*`
             : 'http://localhost:3001/socket.io/:path*',
         },
@@ -30,8 +30,14 @@ const nextConfig = {
         source: '/api/:path*',
         headers: [
           { key: 'Access-Control-Allow-Origin', value: '*' },
-          { key: 'Access-Control-Allow-Methods', value: 'GET, POST, PUT, DELETE, OPTIONS' },
-          { key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization' },
+          {
+            key: 'Access-Control-Allow-Methods',
+            value: 'GET, POST, PUT, DELETE, OPTIONS',
+          },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value: 'Content-Type, Authorization',
+          },
         ],
       },
     ];
