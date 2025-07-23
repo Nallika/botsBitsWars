@@ -1,72 +1,161 @@
-# Turborepo Docker starter
+# BotsBitsWars
 
-This is a community-maintained example. If you experience a problem, please submit a pull request with a fix. GitHub Issues will be closed.
+An online chat application that allows users to compare responses from multiple LLM (Large Language Model) bots simultaneously. Users can send prompts and receive real-time responses from different AI providers, enabling direct comparison of their capabilities and response quality.
 
-## Using this example
+## 🚀 Quick Start
 
-Run the following command:
+### Prerequisites
 
-```sh
-npx create-turbo@latest -e with-docker
-```
+- Node.js 18+ 
+- pnpm 8+
+- MongoDB (local or cloud)
 
-## What's inside?
+### Installation
 
-This Turborepo includes the following:
+```bash
+# Clone the repository
+git clone <repository-url>
+cd botsBitsWars
 
-### Apps and Packages
-
-- `web`: a [Next.js](https://nextjs.org/) app
-- `api`: an [Express](https://expressjs.com/) server
-- `@repo/ui`: a React component library
-- `@repo/typescript-config`: tsconfig.json's used throughout the monorepo
-- `@repo/jest-presets`: Jest configurations
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Docker
-
-This repo is configured to be built with Docker, and Docker compose. To build all apps in this repo:
-
-```
 # Install dependencies
-yarn install
+pnpm install
 
-# Create a network, which allows containers to communicate
-# with each other, by using their container name as a hostname
+# Setup environment variables (see docs/04-development-setup.md)
+```
+
+### Development
+
+```bash
+# Option 1: Separate development servers (Recommended)
+pnpm dev:web    # Terminal 1 - Frontend (http://localhost:3000)
+pnpm dev:api    # Terminal 2 - Backend (http://localhost:3001)
+
+# Option 2: Concurrent development (Convenient)
+pnpm dev:all    # Start both services
+
+# Option 3: Proxy development server (Production-like)
+pnpm dev:proxy  # Single entry point (http://localhost:3002)
+```
+
+## 📁 Project Structure
+
+```
+botsBitsWars/
+├── apps/
+│   ├── web/                 # Next.js frontend application
+│   └── backend/             # Node.js API server
+├── packages/
+│   ├── shared-types/        # Shared TypeScript interfaces
+│   ├── chat-core/           # Chat business logic (reusable)
+│   └── config/              # Shared configurations
+├── docs/                    # Project documentation
+├── docker/                  # Docker configurations
+└── turbo.json              # Turborepo configuration
+```
+
+## 🛠️ Technology Stack
+
+### Frontend
+- **Framework**: Next.js 14 with React 18
+- **Language**: TypeScript
+- **Styling**: SCSS Modules
+- **State Management**: React Hooks + Context API
+- **Real-time Communication**: Socket.IO Client
+
+### Backend
+- **Runtime**: Node.js with TypeScript
+- **Framework**: Express.js
+- **Real-time Communication**: Socket.IO
+- **Authentication**: JWT + Google OAuth
+- **Database**: MongoDB with Mongoose
+
+### Infrastructure
+- **Monorepo**: Turborepo
+- **Containerization**: Docker
+- **Package Management**: pnpm
+
+## 🎯 Key Features
+
+- **Multi-Bot Chat**: Compare responses from multiple LLM providers
+- **Real-time Streaming**: Live response streaming from all bots
+- **Quiz Mode**: Interactive voting system for response comparison
+- **Session Management**: Save and continue previous sessions
+- **Mobile-First Design**: Responsive design for all devices
+
+## 📚 Documentation
+
+- [Project Overview](./docs/01-project-overview.md)
+- [Technical Architecture](./docs/02-technical-architecture.md)
+- [Development Plan](./docs/03-development-plan.md)
+- [Development Setup](./docs/04-development-setup.md)
+
+## 🐳 Docker
+
+### Development with Docker
+
+```bash
+# Create network for container communication
 docker network create app_network
 
-# Build prod using new BuildKit engine
-COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose -f docker-compose.yml build
+# Build and start all services
+docker-compose up --build
 
-# Start prod in detached mode
-docker-compose -f docker-compose.yml up -d
+# Access the application
+# Frontend: http://localhost:3000
+# Backend: http://localhost:3001
 ```
 
-Open http://localhost:3000.
+### Production Build
 
-To shutdown all running containers:
+```bash
+# Build production images
+COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose build
 
+# Start production services
+docker-compose up -d
 ```
-# Stop running containers started by docker-compse
- docker-compose -f docker-compose.yml down
+
+## 🧪 Testing
+
+```bash
+# Run all tests
+pnpm test
+
+# Run tests in watch mode
+pnpm test:watch
+
+# Run tests with coverage
+pnpm test:coverage
 ```
 
-### Remote Caching
+## 🔧 Available Commands
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+```bash
+# Development
+pnpm dev              # Run all apps in development mode
+pnpm dev:all          # Start both web and API servers
+pnpm dev:web          # Start only Next.js frontend
+pnpm dev:api          # Start only Express backend
+pnpm dev:proxy        # Start all services with proxy
 
-This example includes optional remote caching. In the Dockerfiles of the apps, uncomment the build arguments for `TURBO_TEAM` and `TURBO_TOKEN`. Then, pass these build arguments to your Docker build.
+# Building
+pnpm build            # Build all packages and apps
+pnpm clean            # Clean all build outputs
 
-You can test this behavior using a command like:
+# Code Quality
+pnpm format           # Format all code with Prettier
+pnpm format:check     # Check code formatting
+pnpm type-check       # Run TypeScript type checking
+```
 
-`docker build -f apps/web/Dockerfile . --build-arg TURBO_TEAM=“your-team-name” --build-arg TURBO_TOKEN=“your-token“ --no-cache`
+## 🤝 Contributing
 
-### Utilities
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
 
-This Turborepo has some additional tools already setup for you:
+## 📄 License
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [Jest](https://jestjs.io) test runner for all things JavaScript
-- [Prettier](https://prettier.io) for code formatting
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
