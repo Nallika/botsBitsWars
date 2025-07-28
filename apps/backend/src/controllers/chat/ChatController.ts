@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 
-import logger from '../../utils/logger';
-import { DBManager } from '../../utils/DBManager';
+import logger from '../../services/logger/logger';
+import { DBManager } from '../../services/db/DBManager';
 import { createChatId } from '../../utils/helpers';
 
 export class ChatController {

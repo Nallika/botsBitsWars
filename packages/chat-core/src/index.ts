@@ -1,5 +1,5 @@
 // Main exports
-export * from './types';
-export * from './services';
-export * from './hooks';
+export * from '@repo/chat-core/types';
+export * from '@repo/chat-core/services';
+export * from '@repo/chat-core/hooks';
 export * from './utils';

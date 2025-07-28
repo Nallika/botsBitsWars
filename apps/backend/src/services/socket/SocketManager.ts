@@ -3,7 +3,7 @@ import { Socket, Server as IOServer } from 'socket.io';
 
 import type { ChatMessage } from '@repo/shared-types';
 import { verifyToken } from '../../utils/helpers';
-import logger from '../../utils/logger';
+import logger from '../logger/logger';
 
 export class SocketManager {
   private io: any;

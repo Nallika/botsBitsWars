@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import logger from './logger';
+import logger from '../logger/logger';
 
 export class DBManager {
   private static instance: DBManager;
@@ -45,17 +45,17 @@ export class DBManager {
 
   // ChatSession CRUD methods
   public static async createSession(sessionData: any) {
-    const { ChatSession } = await import('../models/ChatSession');
+    const { ChatSession } = await import('../../models/ChatSession');
     return ChatSession.create(sessionData);
   }
 
   public static async getSessionById(sessionId: string) {
-    const { ChatSession } = await import('../models/ChatSession');
+    const { ChatSession } = await import('../../models/ChatSession');
     return ChatSession.findOne({ sessionId });
   }
 
   public static async updateSession(sessionId: string, update: any) {
-    const { ChatSession } = await import('../models/ChatSession');
+    const { ChatSession } = await import('../../models/ChatSession');
     return ChatSession.findOneAndUpdate({ sessionId }, update, { new: true });
   }
 }

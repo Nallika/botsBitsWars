@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 
 import { tokenData } from '../types';
-import logger from './logger';
+import logger from '../services/logger/logger';
 
 export const createChatId = (userId: string): string => {
   return crypto

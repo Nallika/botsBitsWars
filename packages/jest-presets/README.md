@@ -11,9 +11,7 @@ Shared Jest configurations for testing across the monorepo.
 
 ## Presets
 
-- `base.js` - Base Jest configuration
-- `nextjs.js` - Next.js testing setup
-- `react-library.js` - React component testing
+- `next/jest-preset.js` - Next.js testing setup with JS-DOM environment.
 - `node.js` - Node.js backend testing
 
 ## Features
@@ -31,7 +29,7 @@ Extend presets in package.json:
 ```json
 {
   "jest": {
-    "preset": "@repo/jest-presets/base"
+    "preset": "@repo/jest-presets/node"
   }
 }
 ```

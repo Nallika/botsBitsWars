@@ -4,14 +4,21 @@
   "private": true,
   "license": "MIT",
   "files": [
-    "node/jest-preset.js"
+    "node/jest-preset.js",
+    "next/jest-preset.js",
+    "next/mocks/fileMock.js"
   ],
   "exports": {
     "./node": "./node/jest-preset.js",
-    "./node/jest-preset": "./node/jest-preset.js"
+    "./node/jest-preset": "./node/jest-preset.js",
+    "./next": "./next/jest-preset.js",
+    "./next/jest-preset": "./next/jest-preset.js"
   },
   "dependencies": {
+    "@testing-library/jest-dom": "^6.5.0",
+    "identity-obj-proxy": "^3.0.0",
     "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "ts-jest": "^29.2.5"
   }
 }

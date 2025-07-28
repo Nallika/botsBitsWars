@@ -1,11 +1,12 @@
 import 'dotenv/config';
-import { createServer } from './server';
-import { DBManager } from './utils/DBManager';
-import logger from './utils/logger';
 import { createServer as createHttpServer } from 'http';
+
+import { createServer } from './server';
+import { DBManager } from './services/db/DBManager';
+import logger from './services/logger/logger';
 import { attachSocketManager } from './services/socket/SocketManager';
 
-const port = process.env.PORT || 3001;
+const port = process.env.PORT;
 const mongoUri = process.env.MONGO_URI;
 
 if (!mongoUri) {
@@ -17,11 +18,25 @@ if (!mongoUri) {
  */
 (async () => {
   try {
+
+    console.log('Connecting to MongoDB...');
+
     await DBManager.getInstance().connect(mongoUri);
 
+    console.log('MongoDB connected successfully');
+
     const app = createServer();
+
+    console.log('Starting server...');
+
     const httpServer = createHttpServer(app);
+
+    console.log('Attaching Socket Manager...');
+
     attachSocketManager(httpServer);
+
+    console.log(`Server is running on port ${port}`);
+
     httpServer.listen(port, () => {
       logger.info(`Server running on port ${port}`);
     });

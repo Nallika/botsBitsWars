@@ -3,7 +3,7 @@ import 'dotenv/config';
 import mongoose from 'mongoose';
 
 import { createServer } from '../server';
-import { DBManager } from '../utils/DBManager';
+import { DBManager } from '../services/db/DBManager';
 import { ChatSession } from '../models/ChatSession';
 
 const MONGO_URI = process.env.MONGO_URI_TEST;

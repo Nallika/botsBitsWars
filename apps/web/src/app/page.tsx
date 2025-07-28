@@ -1,66 +1,55 @@
 'use client';
 
-import { useEffect, useState, ChangeEvent, FormEvent } from 'react';
+import { useState } from 'react';
 
-const API_HOST = process.env.NEXT_PUBLIC_API_HOST || 'http://localhost:3001';
+import Button from '../components/ui/Button/Button';
+import LoginModal from '../components/auth/LoginModal';
+import RegisterModal from '../components/auth/RegisterModal';
+import { useAuth } from '../context/AuthContext';
 
-export default function Web() {
-  const [name, setName] = useState<string>('');
-  const [response, setResponse] = useState<{ message: string } | null>(null);
-  const [error, setError] = useState<string | undefined>();
-
-  useEffect(() => {
-    setResponse(null);
-    setError(undefined);
-  }, [name]);
-
-  const onChange = (e: ChangeEvent<HTMLInputElement>) =>
-    setName(e.target.value);
-
-  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    try {
-      const result = await fetch(`${API_HOST}/message/${name}`);
-      const response = await result.json();
-      setResponse(response);
-    } catch (err) {
-      console.error(err);
-      setError('Unable to fetch response');
-    }
-  };
-
-  const onReset = () => {
-    setName('');
-  };
+export default function IndexPage() {
+  const { user, login, register, loading, error, logout } = useAuth();
+  const [showLogin, setShowLogin] = useState(false);
+  const [showRegister, setShowRegister] = useState(false);
 
   return (
-    <div>
-      <h1>Web</h1>
-      <form onSubmit={onSubmit}>
-        <label htmlFor="name">Name </label>
-        <input
-          type="text"
-          name="name"
-          id="name"
-          value={name}
-          onChange={onChange}
-        ></input>
-        <button type="submit">Submit</button>
-      </form>
-      {error && (
-        <div>
-          <h3>Error</h3>
-          <p>{error}</p>
-        </div>
+    <div style={{ maxWidth: 400, margin: '80px auto', textAlign: 'center' }}>
+      <h1>Welcome to BotsBitsWars</h1>
+      {!user ? (
+        <>
+          <Button onClick={() => setShowLogin(true)} fullWidth style={{ marginBottom: 8 }}>
+            Login
+          </Button>
+          <Button onClick={() => setShowRegister(true)} variant="secondary" fullWidth>
+            Register
+          </Button>
+        </>
+      ) : (
+        <>
+          <Button fullWidth style={{ marginBottom: 8 }}>Start Chat</Button>
+          <Button onClick={logout} variant="secondary" fullWidth>Logout</Button>
+        </>
       )}
-      {response && (
-        <div>
-          <h3>Greeting</h3>
-          <p>{response.message}</p>
-          <button onClick={onReset}>Reset</button>
-        </div>
-      )}
+      <LoginModal
+        open={showLogin}
+        onClose={() => setShowLogin(false)}
+        onLogin={async ({ email, password }) => {
+          await login(email, password);
+          setShowLogin(false);
+        }}
+        loading={loading}
+        error={error || undefined}
+      />
+      <RegisterModal
+        open={showRegister}
+        onClose={() => setShowRegister(false)}
+        onRegister={async ({ email, password }) => {
+          await register(email, password);
+          setShowRegister(false);
+        }}
+        loading={loading}
+        error={error || undefined}
+      />
     </div>
   );
 }

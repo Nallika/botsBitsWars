@@ -28,7 +28,7 @@ pnpm install
 ```bash
 # Option 1: Separate development servers (Recommended)
 pnpm dev:web    # Terminal 1 - Frontend (http://localhost:3000)
-pnpm dev:api    # Terminal 2 - Backend (http://localhost:3001)
+pnpm dev:backend    # Terminal 2 - Backend (http://localhost:3001)
 
 # Option 2: Concurrent development (Convenient)
 pnpm dev:all    # Start both services
@@ -138,7 +138,7 @@ pnpm test:coverage
 pnpm dev              # Run all apps in development mode
 pnpm dev:all          # Start both web and API servers
 pnpm dev:web          # Start only Next.js frontend
-pnpm dev:api          # Start only Express backend
+pnpm dev:backend          # Start only Express backend
 pnpm dev:proxy        # Start all services with proxy
 
 # Building

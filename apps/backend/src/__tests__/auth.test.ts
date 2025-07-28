@@ -2,7 +2,7 @@ import 'dotenv/config';
 import supertest from 'supertest';
 import { createServer } from '../server';
 import mongoose from 'mongoose';
-import { DBManager } from '../utils/DBManager';
+import { DBManager } from '../services/db/DBManager';
 
 const MONGO_URI = process.env.MONGO_URI_TEST;
 

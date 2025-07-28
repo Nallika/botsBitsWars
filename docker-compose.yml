@@ -1,4 +1,4 @@
-version: "3"
+version: "3.8"
 
 services:
   web:
@@ -9,18 +9,38 @@ services:
     restart: always
     ports:
       - 3000:3000
+    depends_on:
+      - backend
     networks:
       - app_network
-  api:
-    container_name: api
+  backend:
+    container_name: backend
     build:
       context: .
-      dockerfile: ./apps/api/Dockerfile
+      dockerfile: ./apps/backend/Dockerfile
     restart: always
     ports:
       - 3001:3001
+    depends_on:
+      - mongo
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/botsBitsWars
     networks:
       - app_network
+
+  mongo:
+    image: mongo:latest
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - app_network
+
+volumes:
+  mongo-data:
 
 # Define a network, which allows containers to communicate
 # with each other, by using their container name as a hostname
