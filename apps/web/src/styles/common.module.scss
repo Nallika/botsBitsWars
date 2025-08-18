@@ -1,0 +1,54 @@
+/* Common layout patterns */
+.authContainer {
+  max-width: 400px;
+  margin: calc(var(--spacing-xl) * 2.5) auto;
+  text-align: center;
+}
+
+.buttonSpacing {
+  margin-bottom: var(--spacing-sm);
+}
+
+.primaryLink {
+  color: var(--color-primary);
+  text-decoration: none;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.errorText {
+  color: var(--color-error);
+  margin-bottom: var(--spacing-sm);
+  font-size: 0.875rem;
+}
+
+/* Utility classes */
+.centerText {
+  text-align: center;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.spacingXs {
+  margin-bottom: var(--spacing-xs);
+}
+
+.spacingSm {
+  margin-bottom: var(--spacing-sm);
+}
+
+.spacingMd {
+  margin-bottom: var(--spacing-md);
+}
+
+.spacingLg {
+  margin-bottom: var(--spacing-lg);
+}
+
+.spacingXl {
+  margin-bottom: var(--spacing-xl);
+}

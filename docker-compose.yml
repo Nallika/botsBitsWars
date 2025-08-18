@@ -1,0 +1,52 @@
+version: "3.8"
+
+# Production docker-compose file
+# Use: docker-compose up --build
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: ./apps/web/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    env_file:
+      - ./apps/backend/.env
+    networks:
+      - app_network
+
+  backend:
+    build:
+      context: .
+      dockerfile: ./apps/backend/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    depends_on:
+      - mongo
+    env_file:
+      - ./apps/backend/.env
+    networks:
+      - app_network
+
+  mongo:
+    image: mongo:7.0-jammy
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=skeleton
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - app_network
+
+volumes:
+  mongo-data:
+
+networks:
+  app_network:
+    driver: bridge

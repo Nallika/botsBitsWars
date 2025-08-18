@@ -1,0 +1,47 @@
+// Color palette (Material UI-like)
+:root {
+  --color-primary: #1976d2;
+  --color-primary-dark: #115293;
+  --color-secondary: #9c27b0;
+  --color-error: #d32f2f;
+  --color-warning: #ffa000;
+  --color-info: #0288d1;
+  --color-success: #388e3c;
+  --color-background: #fff;
+  --color-surface: #f5f5f5;
+  --color-on-primary: #fff;
+  --color-on-secondary: #fff;
+  --color-on-background: #222;
+  --color-on-surface: #222;
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-primary: #90caf9;
+    --color-primary-dark: #1976d2;
+    --color-secondary: #ce93d8;
+    --color-error: #ef9a9a;
+    --color-warning: #ffe082;
+    --color-info: #81d4fa;
+    --color-success: #a5d6a7;
+    --color-background: #121212;
+    --color-surface: #222;
+    --color-on-primary: #222;
+    --color-on-secondary: #222;
+    --color-on-background: #fff;
+    --color-on-surface: #fff;
+  }
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-on-background);
+  font-family: 'Roboto', Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+} 

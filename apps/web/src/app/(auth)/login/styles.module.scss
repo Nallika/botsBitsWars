@@ -1,0 +1,9 @@
+@import '../../../styles/common.module.scss';
+
+.container {
+  @extend .authContainer;
+}
+
+.link {
+  @extend .primaryLink;
+}
