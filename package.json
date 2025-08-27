@@ -1,6 +1,6 @@
 {
   "name": "skeleton",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "build": "turbo run build",
@@ -50,5 +50,8 @@
     "apps/backend/**/*.{ts,tsx}": [
       "sh -c 'turbo run test --filter=backend'"
     ]
+  },
+  "dependencies": {
+    "socket.io": "^4.8.1"
   }
 }

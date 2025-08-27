@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 
 import { tokenData } from '../types';
 import logger from '../services/logger/logger';
@@ -11,4 +12,11 @@ export const verifyToken = (token: string): tokenData | false => {
 
     return false;
   }
+};
+
+export const createChatId = (userId: string): string => {
+  return crypto
+    .createHash('md5')
+    .update(`${userId}_${Date.now()}`)
+    .digest('hex');
 };

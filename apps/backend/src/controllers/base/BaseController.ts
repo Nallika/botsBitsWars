@@ -67,7 +67,7 @@ export abstract class BaseController {
       }
 
       // Attach user data to request for use in controllers
-      (req as any).userId = tokenData.userId;
+      (req as any).body.userId = tokenData.userId;
 
       return true;
     } catch (error) {

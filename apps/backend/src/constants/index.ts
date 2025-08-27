@@ -52,3 +52,24 @@ export const getCorsOptions = () => {
     CORS_OPTIONS[env as keyof typeof CORS_OPTIONS] || CORS_OPTIONS.development
   );
 };
+
+/**
+ * Socket-related constants
+ */
+export const SOCKET_EVENTS = {
+  // Client to Server
+  SEND_MESSAGE: 'chat:send_message',
+
+  // Server to Client
+  MESSAGE: 'chat:message',
+  ERROR: 'chat:error',
+  SESSION_CREATED: 'chat:session_created',
+} as const;
+
+export const MESSAGE_MAX_LENGTH = 1000;
+
+export const SOCKET_AUTH_ERRORS = {
+  TOKEN_MISSING: 'SessionId missing',
+  TOKEN_INVALID: 'Invalid sessionId',
+  AUTH_FAILED: 'Authentication failed',
+} as const;

@@ -134,9 +134,7 @@ describe('Auth API', () => {
   });
 
   it('rejects /me request without token', async () => {
-    const res = await supertest(app)
-      .get('/api/auth/me')
-      .expect(401);
+    const res = await supertest(app).get('/api/auth/me').expect(401);
 
     expect(res.body.error).toBe('Unauthorized');
   });

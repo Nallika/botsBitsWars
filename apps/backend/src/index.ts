@@ -4,6 +4,7 @@ import { createServer as createHttpServer } from 'http';
 import { createServer } from './server';
 import { DBManager } from './services/db/DBManager';
 import logger from './services/logger/logger';
+import { attachSocketManager } from './services/socket/SocketManager';
 
 const port = process.env.PORT!;
 const mongoUri = process.env.MONGO_URI!;
@@ -17,6 +18,7 @@ const mongoUri = process.env.MONGO_URI!;
 
     const app = createServer();
     const httpServer = createHttpServer(app);
+    attachSocketManager(httpServer);
 
     httpServer.listen(port, () => {
       logger.info(`Server running on port ${port}`);

@@ -43,7 +43,10 @@ describe('AuthContext', () => {
     expect(result.current.user).toEqual({ email: 'test@example.com' });
     expect(result.current.loading).toBe(false);
     expect(result.current.error).toBe('');
-    expect(authService.login).toHaveBeenCalledWith('test@example.com', 'password');
+    expect(authService.login).toHaveBeenCalledWith(
+      'test@example.com',
+      'password'
+    );
   });
 
   it('handles login error', async () => {
@@ -53,7 +56,10 @@ describe('AuthContext', () => {
     const { result } = renderHook(() => useAuth(), { wrapper });
 
     await act(async () => {
-      const success = await result.current.login('test@example.com', 'password');
+      const success = await result.current.login(
+        'test@example.com',
+        'password'
+      );
       expect(success).toBe(false);
     });
 
@@ -69,14 +75,20 @@ describe('AuthContext', () => {
     const { result } = renderHook(() => useAuth(), { wrapper });
 
     await act(async () => {
-      const success = await result.current.register('test@example.com', 'password');
+      const success = await result.current.register(
+        'test@example.com',
+        'password'
+      );
       expect(success).toBe(true);
     });
 
     expect(result.current.user).toEqual({ email: 'test@example.com' });
     expect(result.current.loading).toBe(false);
     expect(result.current.error).toBe('');
-    expect(authService.register).toHaveBeenCalledWith('test@example.com', 'password');
+    expect(authService.register).toHaveBeenCalledWith(
+      'test@example.com',
+      'password'
+    );
   });
 
   it('handles registration error', async () => {
@@ -86,7 +98,10 @@ describe('AuthContext', () => {
     const { result } = renderHook(() => useAuth(), { wrapper });
 
     await act(async () => {
-      const success = await result.current.register('test@example.com', 'password');
+      const success = await result.current.register(
+        'test@example.com',
+        'password'
+      );
       expect(success).toBe(false);
     });
 
@@ -131,7 +146,9 @@ describe('AuthContext', () => {
 
   it('throws error when useAuth is used outside of AuthProvider', () => {
     // Suppress console.error for this test since we expect an error
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleSpy = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
 
     expect(() => {
       renderHook(() => useAuth());

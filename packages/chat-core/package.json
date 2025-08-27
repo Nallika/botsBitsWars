@@ -1,25 +1,37 @@
 {
-  "name": "@repo/shared-types",
+  "name": "@repo/chat-core",
   "version": "0.1.0",
   "private": true,
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./auth": "./src/auth/index.ts",
-    "./bot": "./src/bot/index.ts",
-    "./user": "./src/user/index.ts"
+    "./types": "./src/types/index.ts",
+    "./services": "./src/services/index.ts",
+    "./hooks": "./src/hooks/index.ts"
   },
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf dist",
     "type-check": "tsc --noEmit",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
     "bump": "sh ../../scripts/bump.sh",
     "bump:patch": "sh ../../scripts/bump.sh patch",
     "bump:minor": "sh ../../scripts/bump.sh minor",
     "bump:major": "sh ../../scripts/bump.sh major"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.0.0",
+    "@types/jest": "^29.0.0",
+    "jest": "^29.0.0",
+    "jest-environment-jsdom": "^29.0.0",
+    "ts-jest": "^29.0.0",
     "typescript": "5.5.4"
+  },
+  "dependencies": {
+    "rxjs": "^7.8.1",
+    "socket.io-client": "^4.7.4",
+    "zustand": "^5.0.7"
   }
 }

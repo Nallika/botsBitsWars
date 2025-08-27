@@ -1,0 +1,90 @@
+.container {
+  border-top: 1px solid #e5e7eb;
+  padding: 16px;
+  background-color: #fff;
+}
+
+.errorMessage {
+  background-color: #fee;
+  color: #c53030;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  margin-bottom: 12px;
+  border: 1px solid #fed7d7;
+}
+
+.inputForm {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.inputContainer {
+  flex: 1;
+}
+
+.messageInput {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 24px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+
+  &:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  &:disabled {
+    background-color: #f9fafb;
+    color: #6b7280;
+    cursor: not-allowed;
+  }
+
+  &::placeholder {
+    color: #9ca3af;
+  }
+}
+
+.sendButton {
+  border-radius: 24px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  min-width: 80px;
+  transition: all 0.2s;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.connectionStatus {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.statusIndicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  
+  &.connected {
+    background-color: #10b981;
+  }
+  
+  &.disconnected {
+    background-color: #ef4444;
+  }
+}
+
+.statusText {
+  font-size: 12px;
+}

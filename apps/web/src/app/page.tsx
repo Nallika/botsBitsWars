@@ -25,6 +25,11 @@ export default async function HomePage() {
         </>
       ) : (
         <>
+          <Link href="/chat">
+            <Button fullWidth style={{ marginBottom: 8 }}>
+              Start Chat
+            </Button>
+          </Link>
           <LogoutButton variant="secondary" fullWidth />
         </>
       )}

@@ -13,7 +13,6 @@ import { BaseController } from '../base/BaseController';
 import logger from '../../services/logger/logger';
 
 export class AuthController extends BaseController {
-
   async register(req: Request, res: Response) {
     await body('email', 'Valid email is required')
       .isEmail()

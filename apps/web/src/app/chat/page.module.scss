@@ -1,0 +1,29 @@
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chatContainer {
+  width: 100%;
+  max-width: 800px;
+  height: 80vh;
+  min-height: 600px;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 0;
+    background: #fff;
+  }
+
+  .chatContainer {
+    height: 100vh;
+    max-width: none;
+    min-height: 100vh;
+  }
+}
