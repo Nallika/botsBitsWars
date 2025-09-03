@@ -2,9 +2,10 @@ import 'dotenv/config';
 import { createServer as createHttpServer } from 'http';
 
 import { createServer } from './server';
+import { createRoutes } from './routes';
 import { DBManager } from './services/db/DBManager';
-import logger from './services/logger/logger';
-import { attachSocketManager } from './services/socket/SocketManager';
+import { logger } from './services/logger';
+import { SocketManager } from './services/socket/SocketManager';
 
 const port = process.env.PORT!;
 const mongoUri = process.env.MONGO_URI!;
@@ -18,7 +19,10 @@ const mongoUri = process.env.MONGO_URI!;
 
     const app = createServer();
     const httpServer = createHttpServer(app);
-    attachSocketManager(httpServer);
+    const socketManager = new SocketManager(httpServer);
+
+    // Attach routes with SocketManager
+    app.use('/api', createRoutes(socketManager));
 
     httpServer.listen(port, () => {
       logger.info(`Server running on port ${port}`);

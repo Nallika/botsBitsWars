@@ -1,9 +1,12 @@
 import 'dotenv/config';
 import supertest from 'supertest';
 import mongoose from 'mongoose';
+import { Server as HTTPServer, createServer as createHttpServer } from 'http';
 
 import { createServer } from '../server';
+import { createRoutes } from '../routes';
 import { DBManager } from '../services/db/DBManager';
+import { SocketManager } from '../services/socket/SocketManager';
 
 const MONGO_URI = process.env.MONGO_URI_TEST;
 
@@ -12,6 +15,7 @@ const MONGO_URI = process.env.MONGO_URI_TEST;
  */
 describe('Auth API', () => {
   let app: ReturnType<typeof createServer>;
+  let server: HTTPServer;
 
   beforeAll(async () => {
     if (!MONGO_URI) {
@@ -19,7 +23,18 @@ describe('Auth API', () => {
     }
 
     await DBManager.getInstance().connect(MONGO_URI);
+
+    // Create Express app
     app = createServer();
+
+    // Create HTTP server
+    server = createHttpServer(app);
+
+    // Create SocketManager with the HTTP server
+    const socketManager = new SocketManager(server);
+
+    // Attach routes with SocketManager
+    app.use('/api', createRoutes(socketManager));
   });
 
   beforeEach(async () => {

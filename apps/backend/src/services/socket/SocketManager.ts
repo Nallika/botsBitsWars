@@ -1,26 +1,26 @@
 import { Server as HTTPServer } from 'http';
 import { Socket, Server as IOServer } from 'socket.io';
+import { Subject } from 'rxjs';
 
-import type { ChatMessageType } from '@repo/shared-types';
-import {
-  SOCKET_EVENTS,
-  SOCKET_AUTH_ERRORS,
-  MESSAGE_MAX_LENGTH,
-} from '../../constants';
+import { ChatMessageType, SOCKET_EVENTS_ENUM } from '@repo/shared-types';
+import { SOCKET_AUTH_ERRORS, MESSAGE_MAX_LENGTH } from '../../constants';
 import { ChatSession } from '../../models/ChatSession';
-import logger from '../logger/logger';
+import { logger } from '../logger';
+import { generateMessageId } from '../../utils/helpers';
 
 interface AuthenticatedSocket extends Socket {
   data: {
     user: {
       id: string;
     };
+    sessionId: string;
   };
 }
 
 export class SocketManager {
   private io: IOServer;
-  private userConnections = new Map<string, Socket>(); // userId → socket
+  private userConnections = new Map<string, Socket>();
+  private messageSubjects = new Map<string, Subject<ChatMessageType>>();
 
   constructor(server: HTTPServer) {
     this.io = new IOServer(server, {
@@ -34,6 +34,30 @@ export class SocketManager {
   }
 
   /**
+   * Get or create message subject for a session
+   */
+  public getMessageSubject(sessionId: string): Subject<ChatMessageType> {
+    if (!this.messageSubjects.has(sessionId)) {
+      const subject = new Subject<ChatMessageType>();
+      this.messageSubjects.set(sessionId, subject);
+    }
+
+    return this.messageSubjects.get(sessionId)!;
+  }
+
+  /**
+   * Remove message subject for session (cleanup)
+   */
+  public removeMessageSubject(sessionId: string): void {
+    const subject = this.messageSubjects.get(sessionId);
+
+    if (subject) {
+      subject.complete();
+      this.messageSubjects.delete(sessionId);
+    }
+  }
+
+  /**
    * Authenticate socket connection using sessionId
    */
   private async authSocket(socket: Socket, next: (err?: Error) => void) {
@@ -41,28 +65,26 @@ export class SocketManager {
       const sessionId = socket.handshake.auth?.sessionId;
 
       if (!sessionId) {
-        logger.warn('Socket connection attempt without sessionId', {
-          socketId: socket.id,
-        });
+        logger.error('Socket connection attempt without sessionId');
         return next(new Error(SOCKET_AUTH_ERRORS.TOKEN_MISSING));
       }
 
-      // Validate sessionId and get user
       const userId = await this.validateSession(sessionId);
 
       if (!userId) {
-        logger.warn('Socket connection attempt with invalid sessionId', {
-          socketId: socket.id,
-          sessionId,
-        });
+        logger.warn(
+          'Socket connection attempt with invalid sessionId:',
+          sessionId
+        );
         return next(new Error(SOCKET_AUTH_ERRORS.TOKEN_INVALID));
       }
 
       // Disconnect existing connection for this user
       this.disconnectExistingConnection(userId);
 
-      // Attach user data to socket
+      // Attach user data and sessionId to socket
       socket.data.user = { id: userId };
+      socket.data.sessionId = sessionId;
 
       logger.info('Socket authenticated successfully', {
         socketId: socket.id,
@@ -85,25 +107,23 @@ export class SocketManager {
    * Handle new socket connection
    */
   private async handleConnection(socket: AuthenticatedSocket) {
-    const { user } = socket.data;
+    const { user, sessionId } = socket.data;
 
-    if (!user) {
-      logger.warn('Socket connection without user data', {
-        socketId: socket.id,
-      });
+    if (!user || !sessionId) {
+      logger.error('Socket connection without user data or sessionId');
       return socket.disconnect();
     }
+
+    socket.join(sessionId);
+    this.storeUserConnection(user.id, socket);
 
     logger.info('User connected via socket', {
       socketId: socket.id,
       userId: user.id,
+      sessionId,
     });
 
-    // Store the connection
-    this.storeUserConnection(user.id, socket);
-
-    // Set up event handlers
-    socket.on(SOCKET_EVENTS.SEND_MESSAGE, data =>
+    socket.on(SOCKET_EVENTS_ENUM.INPUT_MESSAGE, data =>
       this.handleSendMessage(socket, data)
     );
 
@@ -111,12 +131,11 @@ export class SocketManager {
       logger.info('User disconnected from socket', {
         socketId: socket.id,
         userId: user.id,
+        sessionId,
       });
-      // Clean up connection tracking
       this.userConnections.delete(user.id);
     });
 
-    // Handle socket errors
     socket.on('error', error => {
       this.handleError(socket, error, 'Socket error');
     });
@@ -127,24 +146,15 @@ export class SocketManager {
    */
   private async handleSendMessage(socket: AuthenticatedSocket, data: any) {
     try {
-      const { user } = socket.data;
+      const { user, sessionId } = socket.data;
+      const { content } = data;
 
-      // Validate message data
-      if (!data || typeof data !== 'object') {
-        this.emitError(socket, 'Invalid message format');
-        return;
-      }
-
-      const { content, sessionId } = data;
-
-      // Validate required fields
-      if (!content || typeof content !== 'string') {
+      if (
+        !content ||
+        typeof content !== 'string' ||
+        content.trim().length === 0
+      ) {
         this.emitError(socket, 'Message content is required');
-        return;
-      }
-
-      if (!sessionId || typeof sessionId !== 'string') {
-        this.emitError(socket, 'Session ID is required');
         return;
       }
 
@@ -157,25 +167,8 @@ export class SocketManager {
         return;
       }
 
-      if (content.trim().length === 0) {
-        this.emitError(socket, 'Message cannot be empty');
-        return;
-      }
-
-      // Verify session belongs to user
-      const session = await ChatSession.findOne({
-        sessionId,
-        userId: user.id,
-      });
-
-      if (!session) {
-        this.emitError(socket, 'Session not found or unauthorized');
-        return;
-      }
-
-      // Create message object
       const message: ChatMessageType = {
-        id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        id: generateMessageId(),
         sessionId,
         sender: 'user',
         content: content.trim(),
@@ -183,18 +176,19 @@ export class SocketManager {
       };
 
       logger.info('Message received via socket', {
-        messageId: message.id,
+        text: message.content,
         sessionId,
         userId: user.id,
-        contentLength: content.length,
       });
 
-      // For now, echo the message back (bot integration comes later)
-      socket.emit(SOCKET_EVENTS.MESSAGE, message);
+      // Send user message to session room first
+      this.sendMessageToSession(sessionId, message);
+      // Then emit to message subject for bot processing
+      this.getMessageSubject(sessionId).next(message);
 
-      logger.info('Message echoed back to user', {
+      logger.info('Message processed and emitted to session', {
+        sessionId,
         messageId: message.id,
-        socketId: socket.id,
       });
     } catch (error) {
       this.handleError(socket, error, 'Failed to process message');
@@ -202,7 +196,7 @@ export class SocketManager {
   }
 
   /**
-   * Handle socket errors with proper logging
+   * Log error and send safe error message to socket
    */
   private handleError(
     socket: AuthenticatedSocket,
@@ -212,11 +206,10 @@ export class SocketManager {
     const errorMessage =
       error instanceof Error ? error.message : 'Unknown error';
 
-    logger.error(`Socket error: ${context}`, {
+    logger.error(`handleError Socket error: ${context}`, {
       socketId: socket.id,
       userId: socket.data?.user?.id,
       error: errorMessage,
-      context,
     });
 
     this.emitError(socket, 'An error occurred while processing your request');
@@ -225,21 +218,18 @@ export class SocketManager {
   /**
    * Emit error to specific socket
    */
-  private emitError(socket: Socket, message: string, code?: string) {
-    socket.emit(SOCKET_EVENTS.ERROR, {
+  private emitError(socket: Socket, message: string) {
+    socket.emit(SOCKET_EVENTS_ENUM.ERROR, {
       error: message,
-      code,
       timestamp: new Date().toISOString(),
     });
   }
 
-  /**
-   * Send message to specific session (for future use)
-   */
   public sendMessageToSession(sessionId: string, message: ChatMessageType) {
-    this.io.to(sessionId).emit(SOCKET_EVENTS.MESSAGE, message);
+    this.io.to(sessionId).emit(SOCKET_EVENTS_ENUM.OUTPUT_MESSAGE, message);
 
     logger.info('Message sent to session', {
+      text: message.content,
       sessionId,
       messageId: message.id,
     });
@@ -267,6 +257,7 @@ export class SocketManager {
    */
   private disconnectExistingConnection(userId: string): void {
     const existingSocket = this.userConnections.get(userId);
+
     if (existingSocket) {
       logger.info('Disconnecting existing connection for user', {
         userId,
@@ -282,13 +273,5 @@ export class SocketManager {
    */
   private storeUserConnection(userId: string, socket: Socket): void {
     this.userConnections.set(userId, socket);
-    logger.info('Stored user connection', {
-      userId,
-      socketId: socket.id,
-    });
   }
-}
-
-export function attachSocketManager(server: HTTPServer) {
-  return new SocketManager(server);
 }

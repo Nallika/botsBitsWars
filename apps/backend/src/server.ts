@@ -3,7 +3,6 @@ import express, { Express } from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import routes from './routes';
 import { getCorsOptions } from './constants';
 
 export const createServer = (): Express => {
@@ -15,8 +14,7 @@ export const createServer = (): Express => {
     .use(cookieParser())
     .use(urlencoded({ extended: true }))
     .use(json())
-    .use(cors(getCorsOptions()))
-    .use('/api', routes);
+    .use(cors(getCorsOptions()));
 
   return app;
 };

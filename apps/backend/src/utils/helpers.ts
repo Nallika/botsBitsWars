@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 
 import { tokenData } from '../types';
-import logger from '../services/logger/logger';
+import { logger } from '../services/logger';
 
 export const verifyToken = (token: string): tokenData | false => {
   try {
@@ -19,4 +19,8 @@ export const createChatId = (userId: string): string => {
     .createHash('md5')
     .update(`${userId}_${Date.now()}`)
     .digest('hex');
+};
+
+export const generateMessageId = (): string => {
+  return `msg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
 };

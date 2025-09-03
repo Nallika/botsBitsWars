@@ -10,7 +10,7 @@ import {
 import { AuthService } from '../../services/auth/AuthService';
 import { MIN_PASSWORD_LENGTH } from '../../constants';
 import { BaseController } from '../base/BaseController';
-import logger from '../../services/logger/logger';
+import { logger } from '../../services/logger';
 
 export class AuthController extends BaseController {
   async register(req: Request, res: Response) {
@@ -30,7 +30,7 @@ export class AuthController extends BaseController {
 
     try {
       const { email, password }: RegisterRequest = req.body;
-      logger.info('Registering user with email:', email);
+      logger.info('Registering user with email:', { email });
 
       await AuthService.register({ email, password }, res);
 

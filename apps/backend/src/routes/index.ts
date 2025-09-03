@@ -1,10 +1,14 @@
 import express from 'express';
-import chatRoutes from './chat';
+
+import { createChatRoutes } from './chat';
 import authRoutes from './auth';
+import type { SocketManager } from '../services/socket/SocketManager';
 
-const routes = express.Router();
+export function createRoutes(socketManager: SocketManager) {
+  const routes = express.Router();
 
-routes.use('/auth', authRoutes);
-routes.use('/chat', chatRoutes);
+  routes.use('/auth', authRoutes);
+  routes.use('/chat', createChatRoutes(socketManager));
 
-export default routes;
+  return routes;
+}

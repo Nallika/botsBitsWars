@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
-import logger from '../../services/logger/logger'; // Assuming logger is correctly imported
+import { logger } from '../../services/logger';
 import { AuthService } from '../../services/auth/AuthService';
 import {
   ApiErrorResponse,

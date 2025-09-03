@@ -26,7 +26,6 @@ const ChatInput: React.FC = React.memo(() => {
       sendMessage(message.trim());
       setMessage('');
     } catch (error) {
-      console.log('catch!!');
       console.error('Failed to send message:', error);
       // Let the error bubble up to be handled by error boundaries
       throw error;

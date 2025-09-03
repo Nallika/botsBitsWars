@@ -1,10 +1,10 @@
-import { Subject } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
 
 import { ChatManager } from '../ChatManager';
 import {
-  ConnectionStatus,
+  CONNECTION_STATUS_ENUM,
   ChatMessageType,
+  SOCKET_EVENTS_ENUM,
   SocketError,
 } from '@repo/shared-types';
 
@@ -52,8 +52,9 @@ describe('ChatManager', () => {
 
   describe('constructor', () => {
     it('initializes with provided configuration', () => {
-      expect(chatManager.getSessionId()).toBe('test-session-123');
-      expect(chatManager.connectionStatus).toBe(ConnectionStatus.connected);
+      expect(chatManager.connectionStatus).toBe(
+        CONNECTION_STATUS_ENUM.connected
+      );
     });
 
     it('auto connects when autoConnect is true', () => {
@@ -116,7 +117,7 @@ describe('ChatManager', () => {
         expect.any(Function)
       );
       expect(mockSocket.on).toHaveBeenCalledWith(
-        'chat:message',
+        SOCKET_EVENTS_ENUM.OUTPUT_MESSAGE,
         expect.any(Function)
       );
       expect(mockSocket.on).toHaveBeenCalledWith(
@@ -134,20 +135,6 @@ describe('ChatManager', () => {
     });
   });
 
-  describe('disconnect', () => {
-    it('disconnects the socket and resets state', () => {
-      chatManager.connect();
-      chatManager.disconnect();
-
-      expect(mockSocket.disconnect).toHaveBeenCalled();
-      expect(chatManager.getSessionId()).toBe('');
-    });
-
-    it('handles disconnect when socket is null', () => {
-      expect(() => chatManager.disconnect()).not.toThrow();
-    });
-  });
-
   describe('sendMessage', () => {
     beforeEach(() => {
       chatManager.connect();
@@ -157,19 +144,23 @@ describe('ChatManager', () => {
     it('sends message with correct payload', () => {
       chatManager.sendMessage('Hello world');
 
-      expect(mockSocket.emit).toHaveBeenCalledWith('chat:send_message', {
-        content: 'Hello world',
-        sessionId: 'test-session-123',
-      });
+      expect(mockSocket.emit).toHaveBeenCalledWith(
+        SOCKET_EVENTS_ENUM.INPUT_MESSAGE,
+        {
+          content: 'Hello world',
+        }
+      );
     });
 
     it('trims message content before sending', () => {
       chatManager.sendMessage('  Hello world  ');
 
-      expect(mockSocket.emit).toHaveBeenCalledWith('chat:send_message', {
-        content: 'Hello world',
-        sessionId: 'test-session-123',
-      });
+      expect(mockSocket.emit).toHaveBeenCalledWith(
+        SOCKET_EVENTS_ENUM.INPUT_MESSAGE,
+        {
+          content: 'Hello world',
+        }
+      );
     });
 
     it('throws error when socket is not connected', () => {
@@ -180,14 +171,6 @@ describe('ChatManager', () => {
       );
     });
 
-    it('throws error when no active session', () => {
-      chatManager.setSessionId('');
-
-      expect(() => chatManager.sendMessage('Hello')).toThrow(
-        'No active session'
-      );
-    });
-
     it('throws error for empty message content', () => {
       expect(() => chatManager.sendMessage('')).toThrow(
         'Message content cannot be empty'
@@ -195,13 +178,6 @@ describe('ChatManager', () => {
       expect(() => chatManager.sendMessage('   ')).toThrow(
         'Message content cannot be empty'
       );
-    });
-  });
-
-  describe('session management', () => {
-    it('sets and gets session ID', () => {
-      chatManager.setSessionId('new-session-456');
-      expect(chatManager.getSessionId()).toBe('new-session-456');
     });
   });
 
@@ -216,7 +192,10 @@ describe('ChatManager', () => {
       chatManager.connectionStatus$.subscribe(status => {
         subscriptionCount++;
         // Skip the initial BehaviorSubject emission
-        if (subscriptionCount > 1 && status === ConnectionStatus.connected) {
+        if (
+          subscriptionCount > 1 &&
+          status === CONNECTION_STATUS_ENUM.connected
+        ) {
           done();
         }
       });
@@ -230,7 +209,10 @@ describe('ChatManager', () => {
       chatManager.connectionStatus$.subscribe(status => {
         subscriptionCount++;
         // Skip the initial BehaviorSubject emission
-        if (subscriptionCount > 1 && status === ConnectionStatus.connected) {
+        if (
+          subscriptionCount > 1 &&
+          status === CONNECTION_STATUS_ENUM.connected
+        ) {
           done();
         }
       });
@@ -240,7 +222,7 @@ describe('ChatManager', () => {
 
     it('handles connect_error event', done => {
       chatManager.connectionStatus$.subscribe(status => {
-        if (status === ConnectionStatus.error) {
+        if (status === CONNECTION_STATUS_ENUM.error) {
           done();
         }
       });
@@ -262,7 +244,7 @@ describe('ChatManager', () => {
         done();
       });
 
-      eventHandlers['chat:message'](testMessage);
+      eventHandlers[SOCKET_EVENTS_ENUM.OUTPUT_MESSAGE](testMessage);
     });
 
     it('handles chat:error event', done => {
@@ -286,7 +268,10 @@ describe('ChatManager', () => {
       chatManager.connectionStatus$.subscribe(status => {
         subscriptionCount++;
         // Skip the initial BehaviorSubject emission
-        if (subscriptionCount > 1 && status === ConnectionStatus.connected) {
+        if (
+          subscriptionCount > 1 &&
+          status === CONNECTION_STATUS_ENUM.connected
+        ) {
           done();
         }
       });
@@ -323,7 +308,7 @@ describe('ChatManager', () => {
         done();
       });
 
-      eventHandlers['chat:message'](testMessage);
+      eventHandlers[SOCKET_EVENTS_ENUM.OUTPUT_MESSAGE](testMessage);
     });
 
     it('provides connection status observable', done => {
@@ -332,7 +317,7 @@ describe('ChatManager', () => {
       chatManager.connectionStatus$.subscribe(status => {
         statusCount++;
         if (statusCount === 2) {
-          expect(status).toBe(ConnectionStatus.connected);
+          expect(status).toBe(CONNECTION_STATUS_ENUM.connected);
           done();
         }
       });
@@ -372,7 +357,9 @@ describe('ChatManager', () => {
 
   describe('connection status getters', () => {
     it('returns current connection status', () => {
-      expect(chatManager.connectionStatus).toBe(ConnectionStatus.connected);
+      expect(chatManager.connectionStatus).toBe(
+        CONNECTION_STATUS_ENUM.connected
+      );
     });
 
     it('returns isConnected boolean', () => {

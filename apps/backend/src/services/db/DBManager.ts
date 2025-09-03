@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import logger from '../logger/logger';
+import { logger } from '../logger';
 
 export class DBManager {
   private static instance: DBManager;
@@ -29,7 +29,7 @@ export class DBManager {
       this.isConnected = true;
       logger.info('MongoDB connected');
     } catch (err) {
-      logger.error('MongoDB connection error:', err);
+      logger.error('MongoDB connection error %s', err);
       throw err;
     }
   }

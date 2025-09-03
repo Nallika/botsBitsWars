@@ -1,7 +1,7 @@
 import { act } from 'react';
 import { renderHook } from '@testing-library/react';
 
-import { ConnectionStatus } from '@repo/shared-types';
+import { CONNECTION_STATUS_ENUM } from '@repo/shared-types';
 
 import { apiClient } from '../../services/api';
 import { useChatStore } from '../chatStore';
@@ -158,7 +158,7 @@ describe('useChatStore', () => {
   it('Should listen chatManager topics and set state accordingly', async () => {
     const { result } = renderHook(() => useChatStore());
 
-    const mockConnectionStatus = ConnectionStatus.connected;
+    const mockConnectionStatus = CONNECTION_STATUS_ENUM.connected;
     const mockError = { message: 'Connection error' };
 
     act(() => {

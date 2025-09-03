@@ -5,8 +5,8 @@ import { map, takeUntil } from 'rxjs/operators';
 import {
   ChatMessageType,
   SocketError,
-  SendMessagePayload,
-  ConnectionStatus,
+  CONNECTION_STATUS_ENUM,
+  SOCKET_EVENTS_ENUM,
 } from '@repo/shared-types';
 import { ChatManagerConfig } from '../types';
 
@@ -16,12 +16,11 @@ import { ChatManagerConfig } from '../types';
  */
 export class ChatManager {
   private socket: Socket | null = null;
-  private destroy$ = new Subject<void>();
 
-  // Reactive streams
+  private destroy$ = new Subject<void>();
   private messageSubject = new Subject<ChatMessageType>();
-  private connectionStatusSubject = new BehaviorSubject<ConnectionStatus>(
-    ConnectionStatus.connected
+  private connectionStatusSubject = new BehaviorSubject<CONNECTION_STATUS_ENUM>(
+    CONNECTION_STATUS_ENUM.connected
   );
   private errorSubject = new Subject<Error>();
 
@@ -52,7 +51,7 @@ export class ChatManager {
       sessionId: this.sessionId,
     });
 
-    this.connectionStatusSubject.next(ConnectionStatus.connected);
+    this.connectionStatusSubject.next(CONNECTION_STATUS_ENUM.connected);
 
     try {
       this.socket = io(this.url!, {
@@ -84,7 +83,7 @@ export class ChatManager {
       this.socket = null;
     }
 
-    this.connectionStatusSubject.next(ConnectionStatus.connected);
+    this.connectionStatusSubject.next(CONNECTION_STATUS_ENUM.connected);
     this.sessionId = '';
   }
 
@@ -104,26 +103,11 @@ export class ChatManager {
       throw new Error('Message content cannot be empty');
     }
 
-    const payload: SendMessagePayload = {
+    const payload = {
       content: content.trim(),
-      sessionId: this.sessionId,
     };
 
-    this.socket.emit('chat:send_message', payload);
-  }
-
-  /**
-   * Set current session ID
-   */
-  setSessionId(sessionId: string): void {
-    this.sessionId = sessionId;
-  }
-
-  /**
-   * Get current session ID
-   */
-  getSessionId(): string | null {
-    return this.sessionId;
+    this.socket.emit(SOCKET_EVENTS_ENUM.INPUT_MESSAGE, payload);
   }
 
   /**
@@ -136,31 +120,31 @@ export class ChatManager {
     fromEvent(this.socket, 'connect')
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
-        this.connectionStatusSubject.next(ConnectionStatus.connected);
+        this.connectionStatusSubject.next(CONNECTION_STATUS_ENUM.connected);
       });
 
     fromEvent(this.socket, 'disconnect')
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
-        this.connectionStatusSubject.next(ConnectionStatus.connected);
+        this.connectionStatusSubject.next(CONNECTION_STATUS_ENUM.connected);
       });
 
     fromEvent(this.socket, 'connect_error')
       .pipe(takeUntil(this.destroy$))
       .subscribe((error: any) => {
-        this.connectionStatusSubject.next(ConnectionStatus.error);
+        this.connectionStatusSubject.next(CONNECTION_STATUS_ENUM.error);
         this.handleError(new Error(`Connection error: ${error}`));
       });
 
     // Chat message events
-    fromEvent<ChatMessageType>(this.socket, 'chat:message')
+    fromEvent<ChatMessageType>(this.socket, SOCKET_EVENTS_ENUM.OUTPUT_MESSAGE)
       .pipe(takeUntil(this.destroy$))
       .subscribe((message: ChatMessageType) => {
         this.messageSubject.next(message);
       });
 
     // Error events
-    fromEvent<SocketError>(this.socket, 'chat:error')
+    fromEvent<SocketError>(this.socket, SOCKET_EVENTS_ENUM.ERROR)
       .pipe(takeUntil(this.destroy$))
       .subscribe((errorData: SocketError) => {
         this.handleError(new Error(errorData.error));
@@ -170,7 +154,7 @@ export class ChatManager {
     fromEvent(this.socket, 'reconnect')
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
-        this.connectionStatusSubject.next(ConnectionStatus.connected);
+        this.connectionStatusSubject.next(CONNECTION_STATUS_ENUM.connected);
       });
 
     fromEvent(this.socket, 'reconnect_error')
@@ -212,7 +196,7 @@ export class ChatManager {
   /**
    * Observable stream of connection status changes
    */
-  get connectionStatus$(): Observable<ConnectionStatus> {
+  get connectionStatus$(): Observable<CONNECTION_STATUS_ENUM> {
     return this.connectionStatusSubject.asObservable();
   }
 
@@ -221,7 +205,7 @@ export class ChatManager {
    */
   get connected$(): Observable<boolean> {
     return this.connectionStatusSubject.pipe(
-      map((status: ConnectionStatus) => status === 'connected')
+      map((status: CONNECTION_STATUS_ENUM) => status === 'connected')
     );
   }
 
@@ -235,7 +219,7 @@ export class ChatManager {
   /**
    * Get current connection status
    */
-  get connectionStatus(): ConnectionStatus {
+  get connectionStatus(): CONNECTION_STATUS_ENUM {
     return this.connectionStatusSubject.value;
   }
 

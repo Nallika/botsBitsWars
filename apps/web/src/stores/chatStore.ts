@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 
 import { ChatManager } from '@repo/chat-core/src';
-import { ChatMessageType, ConnectionStatus } from '@repo/shared-types';
+import { ChatMessageType, CONNECTION_STATUS_ENUM } from '@repo/shared-types';
 
 import { apiClient } from '../services/api';
 
@@ -70,7 +70,7 @@ export const useChatStore = create<ChatState>()(
 
         chatManager.connectionStatus$.subscribe(status => {
           set({
-            connected: status === ConnectionStatus.connected,
+            connected: status === CONNECTION_STATUS_ENUM.connected,
           });
         });
 

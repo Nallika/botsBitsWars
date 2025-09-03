@@ -4,15 +4,75 @@ export interface ChatMessageType {
   sender: 'user' | 'bot';
   content: string;
   timestamp: string; // ISO string
-  botId?: string; // For future bot integration
 }
-export interface ChatSessionInfo {
-  sessionId: string;
-  userId: string;
-  bots: string[]; // Placeholder for bot IDs
-  createdAt: string; // ISO string
-  updatedAt: string; // ISO string
+
+/**
+ * Socket-related constants
+ */
+export enum SOCKET_EVENTS_ENUM {
+  // Client to Server
+  INPUT_MESSAGE = 'message:input',
+
+  // Server to Client
+  OUTPUT_MESSAGE = 'message:output',
+  BOT_TYPING = 'notification:bot_typing',
+  ERROR = 'chat:error',
+  SESSION_CREATED = 'chat:session_created',
 }
+
+/**
+ * Bot-related constants
+ */
+export enum CHAT_MODE_ENUM {
+  DEFAULT = 'default',
+}
+
+export type ChatModeInfo = {
+  modeId: string;
+  title: string;
+  description: string;
+  minBots: number;
+  maxBots: number;
+};
+
+/**
+ * Bot-related constants
+ */
+export enum PROVIDERS_ENUM {
+  OPENAI = 'openai',
+}
+
+// Enhanced message type for bot responses
+export interface BotMessage extends ChatMessageType {
+  sender: 'bot';
+  botName: string;
+  color: string;
+  respondingToMessageId: string;
+  processingTime?: number;
+}
+
+export interface BotInfo {
+  providerId: string;
+  name: string;
+  color: string;
+  description: string;
+}
+
+export interface BotResponse {
+  color: string;
+  botName: string;
+  content: string;
+  processingTime: number;
+  success: boolean;
+}
+
+export interface BotContext {
+  conversationHistory?: ChatMessageType[];
+  systemPrompt?: string;
+  temperature?: number;
+  maxTokens?: number;
+}
+
 export interface User {
   id: string;
   email: string;
@@ -29,13 +89,8 @@ export interface SocketError {
   timestamp: string;
 }
 
-export interface SendMessagePayload {
-  content: string;
-  sessionId: string;
-}
-
 // Connection states
-export enum ConnectionStatus {
+export enum CONNECTION_STATUS_ENUM {
   disconnected = 'disconnected',
   connecting = 'connecting',
   connected = 'connected',
@@ -66,12 +121,19 @@ export interface RegisterRequest {
   email: string;
   password: string;
 }
-
-// Auth response types
 export interface LoginResponse {
   email: string;
 }
 
 export interface RegisterResponse {
   email: string;
+}
+
+export interface PrepareChatResponse {
+  modes: ChatModeInfo[];
+  bots: BotInfo[];
+}
+
+export interface CreateSessionResponse {
+  sessionId: string;
 }

@@ -5,7 +5,7 @@ import { Response } from 'express';
 import { AuthData } from '@repo/shared-types/src';
 import { User, IUser } from '../../models/User';
 import { SALT_ROUNDS } from '../../constants';
-import logger from '../logger/logger';
+import { logger } from '../logger';
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
 
@@ -26,7 +26,6 @@ export class AuthService {
 
     const token = AuthService.createToken(user);
     AuthService.setCookie(res, token);
-    logger.info('Setting authentication cookie', { coockies: res.cookie });
   }
 
   static async login(
@@ -96,17 +95,18 @@ export class AuthService {
       const user = await User.findOne({ _id: decoded.userId });
 
       if (!user) {
+        logger.warn('No user found by token');
         return null;
       }
 
       return { userId: decoded.userId };
     } catch (error) {
+      logger.error('Failed to verify token %s', error);
       return null;
     }
   }
 
   static extractTokenFromCookies(cookies: any): string | null {
-    logger.info('Extracting token from cookies', { cookies });
     return cookies['auth-token'] || null;
   }
 }

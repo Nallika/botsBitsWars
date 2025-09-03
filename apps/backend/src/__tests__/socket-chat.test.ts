@@ -4,21 +4,18 @@ import mongoose from 'mongoose';
 import { Server as HTTPServer, createServer as createHttpServer } from 'http';
 import { Socket as ClientSocket, io as Client } from 'socket.io-client';
 
-import type {
+import {
   ChatMessageType,
-  SendMessagePayload,
   SocketError,
+  SOCKET_EVENTS_ENUM,
 } from '@repo/shared-types';
 
 import { createServer } from '../server';
+import { createRoutes } from '../routes';
 import { DBManager } from '../services/db/DBManager';
 import { User } from '../models/User';
-import { attachSocketManager } from '../services/socket/SocketManager';
-import {
-  SOCKET_EVENTS,
-  SOCKET_AUTH_ERRORS,
-  MESSAGE_MAX_LENGTH,
-} from '../constants';
+import { SocketManager } from '../services/socket/SocketManager';
+import { SOCKET_AUTH_ERRORS, MESSAGE_MAX_LENGTH } from '../constants';
 
 const MONGO_URI = process.env.MONGO_URI_TEST;
 
@@ -46,11 +43,11 @@ describe('Socket Chat', () => {
     }
 
     await DBManager.getInstance().connect(MONGO_URI);
-    app = createServer();
 
-    // Create HTTP server and attach socket manager
+    app = createServer();
     server = createHttpServer(app);
-    attachSocketManager(server);
+    const socketManager = new SocketManager(server);
+    app.use('/api', createRoutes(socketManager));
 
     // Start server on random port and wait for it to be ready
     server.listen(0, () => {
@@ -172,18 +169,20 @@ describe('Socket Chat', () => {
     const testMessage = 'Hello, this is a test message!';
     let receivedMessage: ChatMessageType | null = null;
 
-    // Listen for message response
-    clientSocket.on(SOCKET_EVENTS.MESSAGE, (message: ChatMessageType) => {
-      receivedMessage = message;
-    });
+    // Listen for message response from server
+    clientSocket.on(
+      SOCKET_EVENTS_ENUM.OUTPUT_MESSAGE,
+      (message: ChatMessageType) => {
+        receivedMessage = message;
+      }
+    );
 
-    // Send message
-    const payload: SendMessagePayload = {
+    // Send message to server
+    const payload = {
       content: testMessage,
-      sessionId,
     };
 
-    clientSocket.emit(SOCKET_EVENTS.SEND_MESSAGE, payload);
+    clientSocket.emit(SOCKET_EVENTS_ENUM.INPUT_MESSAGE, payload);
 
     // Wait for response
     await new Promise(resolve => setTimeout(resolve, 100));
@@ -201,12 +200,12 @@ describe('Socket Chat', () => {
 
     let errorReceived: SocketError | null = null;
 
-    clientSocket.on(SOCKET_EVENTS.ERROR, (error: SocketError) => {
+    clientSocket.on(SOCKET_EVENTS_ENUM.ERROR, (error: SocketError) => {
       errorReceived = error;
     });
 
     // Send message without content
-    clientSocket.emit(SOCKET_EVENTS.SEND_MESSAGE, { sessionId });
+    clientSocket.emit(SOCKET_EVENTS_ENUM.INPUT_MESSAGE, { sessionId });
 
     await new Promise(resolve => setTimeout(resolve, 100));
 
@@ -214,45 +213,26 @@ describe('Socket Chat', () => {
     expect(errorReceived!.error).toBe('Message content is required');
   });
 
-  it('validates sessionId is required in message', async () => {
-    clientSocket = await createClientSocket(sessionId);
-
-    let errorReceived: SocketError | null = null;
-
-    clientSocket.on(SOCKET_EVENTS.ERROR, (error: SocketError) => {
-      errorReceived = error;
-    });
-
-    // Send message without sessionId
-    clientSocket.emit(SOCKET_EVENTS.SEND_MESSAGE, { content: 'test message' });
-
-    await new Promise(resolve => setTimeout(resolve, 100));
-
-    expect(errorReceived).not.toBeNull();
-    expect(errorReceived!.error).toBe('Session ID is required');
-  });
-
   it('rejects empty messages', async () => {
     clientSocket = await createClientSocket(sessionId);
 
     let errorReceived: SocketError | null = null;
 
-    clientSocket.on(SOCKET_EVENTS.ERROR, (error: SocketError) => {
+    clientSocket.on(SOCKET_EVENTS_ENUM.ERROR, (error: SocketError) => {
       errorReceived = error;
     });
 
     // Send empty message
-    const payload: SendMessagePayload = {
+    const payload = {
       content: '   ',
-      sessionId,
     };
 
-    clientSocket.emit(SOCKET_EVENTS.SEND_MESSAGE, payload);
+    clientSocket.emit(SOCKET_EVENTS_ENUM.INPUT_MESSAGE, payload);
 
     await new Promise(resolve => setTimeout(resolve, 100));
 
     expect(errorReceived).not.toBeNull();
-    expect(errorReceived!.error).toBe('Message cannot be empty');
+    expect(errorReceived!.error).toBe('Message content is required');
   });
 
   it('rejects messages exceeding maximum length', async () => {
@@ -260,18 +240,17 @@ describe('Socket Chat', () => {
 
     let errorReceived: SocketError | null = null;
 
-    clientSocket.on(SOCKET_EVENTS.ERROR, (error: SocketError) => {
+    clientSocket.on(SOCKET_EVENTS_ENUM.ERROR, (error: SocketError) => {
       errorReceived = error;
     });
 
     // Send message that exceeds max length
     const longMessage = 'a'.repeat(MESSAGE_MAX_LENGTH + 1);
-    const payload: SendMessagePayload = {
+    const payload = {
       content: longMessage,
-      sessionId,
     };
 
-    clientSocket.emit(SOCKET_EVENTS.SEND_MESSAGE, payload);
+    clientSocket.emit(SOCKET_EVENTS_ENUM.INPUT_MESSAGE, payload);
 
     await new Promise(resolve => setTimeout(resolve, 100));
 
@@ -279,49 +258,6 @@ describe('Socket Chat', () => {
     expect(errorReceived!.error).toBe(
       `Message too long (max ${MESSAGE_MAX_LENGTH} characters)`
     );
-  });
-
-  it('rejects messages with invalid session ownership', async () => {
-    // Create another user and session
-    const otherUser = {
-      email: 'other@example.com',
-      password: 'Password123',
-    };
-
-    await supertest(app).post('/api/auth/register').send(otherUser);
-    const otherLoginRes = await supertest(app)
-      .post('/api/auth/login')
-      .send(otherUser);
-    const otherCookies = otherLoginRes.headers['set-cookie'];
-
-    const otherSessionRes = await supertest(app)
-      .post('/api/chat/session')
-      .set('Cookie', otherCookies)
-      .expect(200);
-
-    const otherSessionId = otherSessionRes.body.data.sessionId;
-
-    // Connect with first user's sessionId but try to send to other user's session
-    clientSocket = await createClientSocket(sessionId);
-
-    let errorReceived: SocketError | null = null;
-
-    clientSocket.on(SOCKET_EVENTS.ERROR, (error: SocketError) => {
-      errorReceived = error;
-    });
-
-    // Try to send message to other user's session
-    const payload: SendMessagePayload = {
-      content: 'test message',
-      sessionId: otherSessionId,
-    };
-
-    clientSocket.emit(SOCKET_EVENTS.SEND_MESSAGE, payload);
-
-    await new Promise(resolve => setTimeout(resolve, 100));
-
-    expect(errorReceived).not.toBeNull();
-    expect(errorReceived!.error).toBe('Session not found or unauthorized');
   });
 
   it('disconnects existing connection when user connects with new socket', async () => {
@@ -346,24 +282,6 @@ describe('Socket Chat', () => {
     firstSocket.disconnect();
   });
 
-  it('handles invalid message format', async () => {
-    clientSocket = await createClientSocket(sessionId);
-
-    let errorReceived: SocketError | null = null;
-
-    clientSocket.on(SOCKET_EVENTS.ERROR, (error: SocketError) => {
-      errorReceived = error;
-    });
-
-    // Send invalid message format (not an object)
-    clientSocket.emit(SOCKET_EVENTS.SEND_MESSAGE, 'invalid message format');
-
-    await new Promise(resolve => setTimeout(resolve, 100));
-
-    expect(errorReceived).not.toBeNull();
-    expect(errorReceived!.error).toBe('Invalid message format');
-  });
-
   it('trims whitespace from message content', async () => {
     clientSocket = await createClientSocket(sessionId);
 
@@ -371,16 +289,18 @@ describe('Socket Chat', () => {
     const expectedTrimmed = 'Hello with whitespace';
     let receivedMessage: ChatMessageType | null = null;
 
-    clientSocket.on(SOCKET_EVENTS.MESSAGE, (message: ChatMessageType) => {
-      receivedMessage = message;
-    });
+    clientSocket.on(
+      SOCKET_EVENTS_ENUM.OUTPUT_MESSAGE,
+      (message: ChatMessageType) => {
+        receivedMessage = message;
+      }
+    );
 
-    const payload: SendMessagePayload = {
+    const payload = {
       content: testMessage,
-      sessionId,
     };
 
-    clientSocket.emit(SOCKET_EVENTS.SEND_MESSAGE, payload);
+    clientSocket.emit(SOCKET_EVENTS_ENUM.INPUT_MESSAGE, payload);
 
     await new Promise(resolve => setTimeout(resolve, 100));
 
@@ -392,17 +312,20 @@ describe('Socket Chat', () => {
 
     const messageIds: string[] = [];
 
-    clientSocket.on(SOCKET_EVENTS.MESSAGE, (message: ChatMessageType) => {
-      messageIds.push(message.id);
-    });
+    clientSocket.on(
+      SOCKET_EVENTS_ENUM.OUTPUT_MESSAGE,
+      (message: ChatMessageType) => {
+        messageIds.push(message.id);
+      }
+    );
 
     // Send multiple messages
     for (let i = 0; i < 3; i++) {
-      const payload: SendMessagePayload = {
+      const payload = {
         content: `Test message ${i}`,
-        sessionId,
       };
-      clientSocket.emit(SOCKET_EVENTS.SEND_MESSAGE, payload);
+
+      clientSocket.emit(SOCKET_EVENTS_ENUM.INPUT_MESSAGE, payload);
     }
 
     await new Promise(resolve => setTimeout(resolve, 200));

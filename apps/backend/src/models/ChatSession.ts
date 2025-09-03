@@ -2,8 +2,9 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IChatSession extends Document {
   sessionId: string;
-  userId: string; // Reference to User _id
-  bots: string[]; // Placeholder for bot IDs
+  userId: string;
+  botIds: string[];
+  modeId: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -19,9 +20,13 @@ const ChatSessionSchema = new Schema<IChatSession>({
     required: true,
     ref: 'User',
   },
-  bots: {
+  botIds: {
     type: [String],
     default: [],
+  },
+  modeId: {
+    type: String,
+    required: true,
   },
   createdAt: {
     type: Date,
@@ -31,6 +36,12 @@ const ChatSessionSchema = new Schema<IChatSession>({
     type: Date,
     default: Date.now,
   },
+});
+
+// Update the updatedAt field before saving
+ChatSessionSchema.pre('save', function (next) {
+  this.updatedAt = new Date();
+  next();
 });
 
 export const ChatSession = mongoose.model<IChatSession>(
