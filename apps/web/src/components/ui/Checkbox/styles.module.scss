@@ -1,0 +1,108 @@
+.checkbox {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all var(--transition-base);
+  
+  &.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  &:hover:not(.disabled) .box {
+    border-color: var(--color-primary);
+  }
+}
+
+.box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-surface);
+  border-radius: var(--radius-sm);
+  background: var(--color-background);
+  transition: all var(--transition-base);
+  flex-shrink: 0;
+  
+  &:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+  
+  &.checked {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    
+    &:hover:not(.disabled) {
+      background: var(--color-primary-dark);
+      border-color: var(--color-primary-dark);
+    }
+  }
+  
+  .checkbox.disabled & {
+    cursor: not-allowed;
+    
+    &:hover {
+      border-color: var(--color-surface);
+    }
+    
+    &.checked {
+      background: var(--color-surface);
+      border-color: var(--color-surface);
+    }
+  }
+}
+
+.icon {
+  color: var(--color-on-primary);
+  width: 12px;
+  height: 9px;
+  
+  .checkbox.disabled .box.checked & {
+    color: var(--color-on-surface);
+  }
+}
+
+.label {
+  margin-left: var(--spacing-sm);
+  font-size: var(--text-base);
+  color: var(--color-on-background);
+  line-height: var(--leading-normal);
+  user-select: none;
+  
+  .checkbox.disabled & {
+    color: var(--color-on-surface);
+  }
+}
+
+// Dark theme support
+@media (prefers-color-scheme: dark) {
+  .box {
+    border-color: var(--color-on-surface);
+    background: var(--color-surface);
+    
+    &.checked {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+    }
+  }
+}
+
+// High contrast support
+@media (prefers-contrast: high) {
+  .box {
+    border-width: 3px;
+    
+    &.checked {
+      outline: 2px solid var(--color-on-primary);
+      outline-offset: -2px;
+    }
+  }
+  
+  .checkbox:hover:not(.disabled) .box {
+    border-width: 3px;
+  }
+}

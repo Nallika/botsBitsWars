@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import '../styles/global.scss';
 
 export const metadata: Metadata = {
-  title: 'Skeleton App',
-  description: 'Empty app to bootstrap your project',
+  title: 'BotsBitsWars',
+  description: 'Compare responses from different AI models',
 };
 
 export default function RootLayout({

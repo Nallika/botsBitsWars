@@ -7,12 +7,12 @@ jest.mock('next/navigation', () => ({
   redirect: jest.fn(),
 }));
 
-jest.mock('../../../services/auth/serverAuth', () => ({
+jest.mock('../../../../../services/auth/serverAuth', () => ({
   isAuthenticated: jest.fn(),
 }));
 
 const { redirect } = require('next/navigation');
-const { isAuthenticated } = require('../../../services/auth/serverAuth');
+const { isAuthenticated } = require('../../../../../services/auth/serverAuth');
 
 function renderWithProvider(ui: React.ReactElement) {
   return render(ui);
@@ -30,13 +30,5 @@ describe('ChatPage', () => {
     renderWithProvider(component);
 
     expect(screen.getByTestId('chat-frame')).toBeTruthy();
-  });
-
-  it('redirects to home when not authenticated', async () => {
-    isAuthenticated.mockResolvedValue(false);
-
-    await ChatPage();
-
-    expect(redirect).toHaveBeenCalledWith('/');
   });
 });

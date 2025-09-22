@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import type { ChatMessageType } from '@repo/shared-types';
 
-import { mockMessages } from '../../../__mocks__/chatStore';
+import { mockMessages } from '../../../stores/__mocks__/chatStore';
 import ChatMessage from '../ChatMessage';
 
 describe('ChatMessage', () => {

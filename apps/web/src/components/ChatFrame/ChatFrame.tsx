@@ -26,13 +26,6 @@ const ChatFrame: React.FC = React.memo(() => {
 
   return (
     <div className={styles.chatFrame} data-testid="chat-frame">
-      <div className={styles.header}>
-        <h2 className={styles.title}>BotsBitsWars Chat</h2>
-        <p className={styles.subtitle}>
-          Compare responses from different AI models
-        </p>
-      </div>
-
       <div className={styles.messagesContainer}>
         <MessagesList />
       </div>

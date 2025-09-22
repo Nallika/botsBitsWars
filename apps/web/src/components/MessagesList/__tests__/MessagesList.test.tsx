@@ -6,7 +6,7 @@ import {
   mockChatStore,
   resetMockChatStore,
   mockMessages,
-} from '../../../__mocks__/chatStore';
+} from '../../../stores/__mocks__/chatStore';
 
 jest.mock('../../../stores/chatStore', () => ({
   useChatStore: (selector: any) => selector(mockChatStore),

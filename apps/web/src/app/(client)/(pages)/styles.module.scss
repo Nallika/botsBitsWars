@@ -1,0 +1,13 @@
+@import '../../../styles/common.module.scss';
+
+.container {
+  @extend .baseContainer;
+}
+
+.content {
+  @extend .staticContent;
+}
+
+.headerTitle {
+  @extend .headerTitle;
+}

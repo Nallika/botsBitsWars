@@ -1,0 +1,43 @@
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--header-height);
+  padding: 0 var(--spacing-sm); /* 24px - space for buttons */
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  color: var(--color-on-primary);
+  box-shadow: var(--shadow-md);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* When header has exactly 3 children, use space-between layout */
+.header:has(> :nth-child(3):last-child) {
+  justify-content: space-between;
+}
+
+/* Mobile responsive */
+@include mobile-only {
+  .header {
+    height: 56px;
+  }
+}
+
+/* High contrast support */
+@media (prefers-contrast: high) {
+  .header {
+    border-bottom: 2px solid var(--color-on-primary);
+  }
+}
+
+/* Dark theme adjustments */
+@media (prefers-color-scheme: dark) {
+  .header {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  }
+}

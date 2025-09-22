@@ -5,7 +5,7 @@ import ChatFrame from '../ChatFrame';
 import {
   mockChatStore,
   resetMockChatStore,
-} from '../../../__mocks__/chatStore';
+} from '../../../stores/__mocks__/chatStore';
 
 jest.mock('../../../stores/chatStore', () => ({
   useChatStore: (selector: any) => selector(mockChatStore),
@@ -19,10 +19,6 @@ describe('ChatFrame', () => {
   it('renders with correct structure and content', () => {
     render(<ChatFrame />);
 
-    expect(screen.getByText('BotsBitsWars Chat')).toBeTruthy();
-    expect(
-      screen.getByText('Compare responses from different AI models')
-    ).toBeTruthy();
     expect(screen.getByTestId('messages-list-empty')).toBeTruthy();
     expect(screen.getByTestId('chat-input')).toBeTruthy();
   });

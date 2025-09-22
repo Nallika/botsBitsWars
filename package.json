@@ -1,6 +1,6 @@
 {
-  "name": "skeleton",
-  "version": "0.2.0",
+  "name": "BotsBitsWars",
+  "version": "0.3.0",
   "private": true,
   "scripts": {
     "build": "turbo run build",

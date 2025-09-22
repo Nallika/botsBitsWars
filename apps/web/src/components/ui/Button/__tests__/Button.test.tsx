@@ -7,7 +7,6 @@ jest.mock('../styles.module.scss', () => ({
   button: 'button',
   primary: 'primary',
   secondary: 'secondary',
-  fullWidth: 'fullWidth',
 }));
 
 describe('Button', () => {
@@ -26,13 +25,6 @@ describe('Button', () => {
     const button = screen.getByTestId('button');
     expect(button.className).toContain('secondary');
     expect(button.className).not.toContain('primary');
-  });
-
-  it('renders with fullWidth prop', () => {
-    render(<Button fullWidth>Full Width</Button>);
-
-    const button = screen.getByTestId('button');
-    expect(button.className).toContain('fullWidth');
   });
 
   it('applies custom className', () => {

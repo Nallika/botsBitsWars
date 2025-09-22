@@ -1,12 +1,38 @@
 /* Common layout patterns */
-.authContainer {
-  max-width: 400px;
-  margin: calc(var(--spacing-xl) * 2.5) auto;
-  text-align: center;
+
+.baseContainer {
+  height: 100vh;
 }
 
-.buttonSpacing {
-  margin-bottom: var(--spacing-sm);
+.staticContainer {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.baseContent {
+  padding-top: var(--header-height);
+}
+
+.staticContent {
+  flex: 1;
+  padding-top: var(--header-height);
+  display: flex;
+}
+
+.buttonsContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: var(--spacing-lg);
+  gap: var(--spacing-sm);
+  
+  @include desktop {
+    flex-direction: row;
+    gap: var(--spacing-md);
+  }
 }
 
 .primaryLink {
@@ -21,34 +47,10 @@
 .errorText {
   color: var(--color-error);
   margin-bottom: var(--spacing-sm);
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
 }
 
-/* Utility classes */
-.centerText {
-  text-align: center;
-}
-
-.fullWidth {
-  width: 100%;
-}
-
-.spacingXs {
-  margin-bottom: var(--spacing-xs);
-}
-
-.spacingSm {
-  margin-bottom: var(--spacing-sm);
-}
-
-.spacingMd {
-  margin-bottom: var(--spacing-md);
-}
-
-.spacingLg {
-  margin-bottom: var(--spacing-lg);
-}
-
-.spacingXl {
-  margin-bottom: var(--spacing-xl);
+.headerTitle {
+  text-decoration: none;
+  color: var(--color-on-background);
 }

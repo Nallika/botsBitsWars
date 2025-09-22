@@ -1,0 +1,84 @@
+.menuButton {
+  min-width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+  display: flex;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  &:focus {
+    outline: 2px solid rgba(255, 255, 255, 0.4);
+    outline-offset: 2px;
+  }
+}
+
+.menuIcon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* Mobile responsive */
+@include mobile-only {
+  .menuButton {
+    min-width: 36px;
+    height: 36px;
+  }
+
+  .menuIcon {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* Hide menu button on desktop/tablet */
+@include tablet {
+  .menuButton {
+    visibility: hidden;
+  }
+}
+
+/* High contrast support */
+@media (prefers-contrast: high) {
+  .menuButton {
+    border: 2px solid var(--color-on-primary);
+    background: transparent;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .menuButton {
+    transition: none;
+
+    &:hover {
+      transform: none;
+    }
+  }
+}
+
+/* Dark theme adjustments */
+@media (prefers-color-scheme: dark) {
+  .menuButton {
+    border-color: rgba(255, 255, 255, 0.25);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.35);
+    }
+
+    &:active {
+      background: rgba(255, 255, 255, 0.08);
+    }
+  }
+}

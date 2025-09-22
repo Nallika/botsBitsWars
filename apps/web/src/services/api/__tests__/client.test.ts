@@ -136,7 +136,7 @@ describe('apiClient', () => {
 
   it('should handle successful responses', async () => {
     const responseData = { id: 1, name: 'Test User' };
-    mockAxios.onGet('/users/1').reply(200, responseData);
+    mockAxios.onGet('/users/1').reply(200, { data: responseData });
 
     const response = await apiClient.get('/users/1');
 

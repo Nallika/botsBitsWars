@@ -54,7 +54,7 @@ The project uses SCSS modules for component styling with the following approach:
   - Consistent naming convention across the project
 
 - **Common Patterns**: Shared layout patterns in `src/styles/common.module.scss`
-  - `.authContainer` - Standard auth page layout
+  - `.baseContainer` - Standard auth page layout
   - `.primaryLink` - Consistent link styling
   - `.errorText` - Error message styling
   - Utility classes for spacing and layout

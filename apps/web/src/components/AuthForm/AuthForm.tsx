@@ -43,7 +43,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ onSubmit, loading, error }) => {
       {error && <div className={styles.errorMessage}>{error}</div>}
       <Button
         type="submit"
-        fullWidth
+        size="fullWidth"
         disabled={loading}
         data-testid="submit-button"
       >

@@ -1,0 +1,23 @@
+@import '../../styles/common.module.scss';
+
+.container {
+  @extend .staticContainer;
+}
+
+.contentWrapper {
+  @extend .staticContent;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: var(--spacing-lg);
+  gap: var(--spacing-sm);
+}
+
+.headerTitle {
+  @extend .headerTitle;
+}

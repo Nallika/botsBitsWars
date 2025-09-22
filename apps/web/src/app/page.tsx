@@ -1,6 +1,4 @@
-import Link from 'next/link';
-
-import { Button, LogoutButton } from '../components';
+import { LinkButton, Header, LogoutButton } from '../components';
 import { isAuthenticated } from '../services/auth/serverAuth';
 import styles from './styles.module.scss';
 
@@ -9,30 +7,30 @@ export default async function HomePage() {
 
   return (
     <div className={styles.container}>
-      <h1>This is server side page</h1>
-      {!authenticated ? (
-        <>
-          <Link href="/login">
-            <Button fullWidth className={styles.buttonSpacing}>
-              Login
-            </Button>
-          </Link>
-          <Link href="/register">
-            <Button variant="secondary" fullWidth>
-              Register
-            </Button>
-          </Link>
-        </>
-      ) : (
-        <>
-          <Link href="/chat">
-            <Button fullWidth style={{ marginBottom: 8 }}>
-              Start Chat
-            </Button>
-          </Link>
-          <LogoutButton variant="secondary" fullWidth />
-        </>
-      )}
+      <Header>
+        <h1 className={styles.headerTitle}>BotsBitsWars</h1>
+      </Header>
+      <main className={styles.contentWrapper}>
+        <div className={styles.content}>
+          {!authenticated ? (
+            <>
+              <LinkButton href="/login" size="medium">
+                Login
+              </LinkButton>
+              <LinkButton href="/register" variant="secondary" size="medium">
+                Register
+              </LinkButton>
+            </>
+          ) : (
+            <>
+              <LinkButton href="/prepare" size="medium">
+                Start Chat
+              </LinkButton>
+              <LogoutButton variant="secondary" size="medium" />
+            </>
+          )}
+        </div>
+      </main>
     </div>
   );
 }

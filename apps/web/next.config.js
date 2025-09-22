@@ -1,7 +1,24 @@
 /** @type {import('next').NextConfig} */
+const path = require('path');
+
 const nextConfig = {
   // Enable standalone output for Docker
   output: 'standalone',
+
+  // Enable source maps for development debugging
+  webpack: (config, { dev, isServer }) => {
+    if (dev && !isServer) {
+      config.devtool = 'cheap-module-source-map';
+    }
+
+    return config;
+  },
+
+  // SCSS configuration for global mixins
+  sassOptions: {
+    includePaths: [path.join(__dirname, 'src/styles')],
+    prependData: `@import "mixins.scss";`,
+  },
 
   // Proxy API requests to backend in development
   async rewrites() {

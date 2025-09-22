@@ -1,12 +1,17 @@
 // Form components
-export { default as AuthForm } from './authForm/AuthForm';
+export { default as AuthForm } from './AuthForm/AuthForm';
 
 // UI components
-export { default as Button } from './ui/Button/Button';
+export { LinkButton, Button } from './ui/Button';
 export { default as Input } from './ui/Input/Input';
+export { default as Header } from './ui/Header/Header';
+
+// Navigation components
+export { default as BackButton } from './BackButton/BackButton';
+export { default as MenuButton } from './MenuButton/MenuButton';
 
 // Feature components
-export { default as LogoutButton } from './logoutButton/LogoutButton';
+export { default as LogoutButton } from './LogoutButton/LogoutButton';
 
 // Chat components
 export { default as ChatFrame } from './ChatFrame/ChatFrame';

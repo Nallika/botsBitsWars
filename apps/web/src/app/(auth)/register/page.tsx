@@ -28,7 +28,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className={styles.container}>
+    <>
       <h1>Register to be able to login</h1>
       <p>
         Already have an account?{' '}
@@ -37,6 +37,6 @@ export default function RegisterPage() {
         </Link>
       </p>
       <AuthForm onSubmit={handleRegister} loading={loading} error={error} />
-    </div>
+    </>
   );
 }

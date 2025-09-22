@@ -1,13 +1,13 @@
 .message {
   display: flex;
-  margin-bottom: 16px;
+  margin-bottom: var(--spacing-md);
 
   &.user {
     justify-content: flex-end;
 
     .bubble {
-      background-color: #007bff;
-      color: white;
+      background: var(--color-message-user);
+      color: var(--color-message-user-text);
       max-width: 70%;
     }
   }
@@ -16,30 +16,30 @@
     justify-content: flex-start;
 
     .bubble {
-      background-color: #f1f3f5;
-      color: #333;
+      background: var(--color-message-bot);
+      color: var(--color-message-bot-text);
       max-width: 70%;
     }
   }
 }
 
 .bubble {
-  border-radius: 18px;
-  padding: 12px 16px;
+  border-radius: var(--radius-pill);
+  padding: var(--spacing-sm) var(--spacing-md);
   position: relative;
   word-wrap: break-word;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
 }
 
 .content {
-  font-size: 14px;
-  line-height: 1.4;
-  margin-bottom: 4px;
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  margin-bottom: var(--spacing-xs);
 }
 
 .timestamp {
-  font-size: 11px;
+  font-size: var(--text-xs);
   opacity: 0.7;
   text-align: right;
-  margin-top: 4px;
+  margin-top: var(--spacing-xs);
 }

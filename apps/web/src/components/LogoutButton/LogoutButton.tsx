@@ -8,8 +8,7 @@ import { logout } from '../../services/auth/authService';
 
 export default function LogoutButton({
   variant = 'secondary',
-  fullWidth = false,
-  className,
+  ...props
 }: ButtonProps) {
   const router = useRouter();
 
@@ -27,10 +26,9 @@ export default function LogoutButton({
   return (
     <Button
       variant={variant}
-      fullWidth={fullWidth}
-      className={className}
       onClick={handleLogout}
       data-testid="logout-button"
+      {...props}
     >
       Logout
     </Button>

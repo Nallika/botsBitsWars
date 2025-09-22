@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosResponse } from 'axios';
 
-import { ApiErrorResponse } from '@repo/shared-types/src';
+import { ApiErrorResponse, ApiResponse } from '@repo/shared-types/src';
 
 const baseURL = `${process.env.NEXT_PUBLIC_API_HOST!}/api`;
 
@@ -15,7 +15,11 @@ export const apiClient = axios.create({
 
 // Response interceptor for error handling and logging
 apiClient.interceptors.response.use(
-  (response: AxiosResponse) => response,
+  (response: AxiosResponse<ApiResponse>) => {
+    response.data = response.data.data;
+
+    return response;
+  },
   (error: AxiosError<ApiErrorResponse>) => {
     if (process.env.NODE_ENV === 'development') {
       console.error(

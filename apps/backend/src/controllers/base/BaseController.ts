@@ -61,6 +61,7 @@ export abstract class BaseController {
       const tokenData = await AuthService.verifyToken(token);
 
       if (!tokenData) {
+        AuthService.clearCookie(res);
         logger.warn('Token validation failed');
         res.status(403).json({ error: 'Unauthorized' });
         return false;

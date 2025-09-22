@@ -5,7 +5,7 @@ import { CONNECTION_STATUS_ENUM } from '@repo/shared-types';
 
 import { apiClient } from '../../services/api';
 import { useChatStore } from '../chatStore';
-import { mockMessages } from '../../__mocks__/chatStore';
+import { mockMessages } from '../__mocks__/chatStore';
 
 // Mock external dependencies
 let messagesCallback: (message: any) => void;

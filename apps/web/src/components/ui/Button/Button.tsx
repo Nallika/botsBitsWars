@@ -6,14 +6,16 @@ import styles from './styles.module.scss';
 const Button: React.FC<ButtonProps> = ({
   children,
   variant = 'primary',
-  fullWidth = false,
+  size = 'flexible',
+  iconOnly = false,
   className,
   ...props
 }) => {
   const buttonClasses = [
     styles.button,
     styles[variant],
-    fullWidth ? styles.fullWidth : '',
+    styles[size],
+    iconOnly ? styles.iconOnly : '',
     className || '',
   ]
     .filter(Boolean)

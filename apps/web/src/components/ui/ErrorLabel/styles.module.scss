@@ -1,0 +1,12 @@
+.errorLabel {
+  display: block;
+  font-size: var(--text-sm);
+  color: var(--color-error);
+  margin-top: var(--spacing-xs);
+  line-height: var(--leading-normal);
+  
+  // Ensure visibility in high contrast mode
+  @media (prefers-contrast: high) {
+    font-weight: 500;
+  }
+}

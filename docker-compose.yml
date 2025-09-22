@@ -38,7 +38,7 @@ services:
     ports:
       - "27017:27017"
     environment:
-      - MONGO_INITDB_DATABASE=skeleton
+      - MONGO_INITDB_DATABASE=botsBitsWars
     volumes:
       - mongo-data:/data/db
     networks:

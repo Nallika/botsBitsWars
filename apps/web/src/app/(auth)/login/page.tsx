@@ -28,7 +28,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className={styles.container}>
+    <>
       <h1>Login</h1>
       <p>
         Don't have an account?&nbsp;
@@ -38,6 +38,6 @@ export default function LoginPage() {
       </p>
 
       <AuthForm onSubmit={handleLogin} loading={loading} error={error} />
-    </div>
+    </>
   );
 }

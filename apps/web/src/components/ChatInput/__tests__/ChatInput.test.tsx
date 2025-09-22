@@ -5,7 +5,7 @@ import ChatInput from '../ChatInput';
 import {
   mockChatStore,
   resetMockChatStore,
-} from '../../../__mocks__/chatStore';
+} from '../../../stores/__mocks__/chatStore';
 
 jest.mock('../../../stores/chatStore', () => ({
   useChatStore: (selector: any) => selector(mockChatStore),

@@ -1,9 +1,17 @@
 @import '../styles/common.module.scss';
 
 .container {
-  @extend .authContainer;
+  @extend .staticContainer;
 }
 
-.buttonSpacing {
-  @extend .spacingSm;
+.contentWrapper {
+  @extend .staticContent;
+}
+
+.content {
+  @extend .buttonsContainer;
+}
+
+.headerTitle {
+  @extend .headerTitle;
 }

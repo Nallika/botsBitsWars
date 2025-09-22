@@ -9,7 +9,8 @@ export interface User {
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary';
-  fullWidth?: boolean;
+  variant?: 'primary' | 'secondary' | 'transparent';
+  size?: 'flexible' | 'small' | 'medium' | 'big' | 'fullWidth';
+  iconOnly?: boolean;
   className?: string;
 }

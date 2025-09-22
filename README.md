@@ -37,7 +37,7 @@ pnpm dev:proxy  # Single entry point (http://localhost:3002)
 ## 📁 Project Structure
 
 ```
-skeleton/
+botsBitsWars/
 ├── apps/
 │   ├── web/                 # Next.js frontend application
 │   └── backend/             # Node.js API server
