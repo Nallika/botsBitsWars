@@ -16,8 +16,9 @@ export interface RangeProps {
   showValue?: boolean;
   className?: string;
   onChange?: (value: number) => void;
-  onFocus?: () => void;
-  onBlur?: () => void;
+  onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
+  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
+  onPointerUp?: (e: React.PointerEvent<HTMLInputElement>) => void;
 }
 
 export const Range: React.FC<RangeProps> = ({
@@ -33,6 +34,7 @@ export const Range: React.FC<RangeProps> = ({
   onChange,
   onFocus,
   onBlur,
+  onPointerUp,
   name
 }) => {
   // Ensure value is within bounds
@@ -76,6 +78,7 @@ export const Range: React.FC<RangeProps> = ({
         onChange={handleChange}
         onFocus={onFocus}
         onBlur={onBlur}
+        onPointerUp={onPointerUp}
         aria-label={label || 'Range slider'}
       />
 

@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
+import { debounce } from 'lodash';
 
 import { BotConfigField, BotConfigSchemaField } from '@repo/shared-types/src';
 import { Input, Range, Radio } from '../../ui';
@@ -8,15 +9,31 @@ import { Input, Range, Radio } from '../../ui';
 interface BotFieldProps {
   fieldData?: BotConfigField;
   schema: BotConfigSchemaField;
+  updateFieldData: (fieldData: BotConfigField) => void;
 }
 
-export const BotField: React.FC<BotFieldProps> = ({ fieldData, schema }) => {
+/**
+ * Component represents single bot configuration field, can be either number, string or boolean
+ * Renders appropriate input by provided properties
+ * 
+ * @param
+ * - fieldData: existing field data (name, value)
+ * - schema: field schema defining type, name, defaultValue, min, max, step
+ */
+export const BotField: React.FC<BotFieldProps> = ({ fieldData, schema, updateFieldData}) => {
   const name = fieldData?.name || schema.name;
   const [value, setValue] = useState(fieldData?.value || schema.defaultValue);
 
-  const handleChange = useCallback((newValue: number | string | boolean) => {
+  const updateValue = useMemo(() => debounce((val: BotConfigField['value']) => {
+    updateFieldData({ name, value: val });
+  }, 300), []);
+
+  const handleChange = (
+    newValue: BotConfigField['value'],
+  ) => {
     setValue(newValue);
-  }, []);
+    updateValue(newValue);
+  };
 
   const renderInput = () => {
     switch (schema.type) {
@@ -30,11 +47,11 @@ export const BotField: React.FC<BotFieldProps> = ({ fieldData, schema }) => {
               min={schema.min}
               max={schema.max}
               step={schema.step ?? 1}
-              onChange={handleChange}
+              onChange={(val) => handleChange(val)}
             />
           );
         }
-        
+
         return (
           <Input
             name={name}

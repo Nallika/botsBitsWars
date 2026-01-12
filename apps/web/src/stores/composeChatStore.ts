@@ -1,18 +1,19 @@
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 
-import { 
-  BotSnapshot,
+import {
   BotInfo,
   ChatModeInfo, 
-  PrepareChatData
+  ComposeChatData,
+  CreateSessionResponse,
 } from '@repo/shared-types';
 
 import { apiClient } from '../services/api';
 import { getRandomEl } from '../utils';
-import { SelectedBot } from '../types';
+import { SelectedBot, UpdateBotData } from '../types';
+import { useChatStore } from './chatStore';
 
-interface PrepareChatState {
+interface ComposeChatState {
   loading: boolean;
   error: string;
 
@@ -25,15 +26,16 @@ interface PrepareChatState {
   selectedBots: SelectedBot[];
 
   // Actions
-  loadPrepareChatData: () => Promise<void>;
+  loadComposeChatData: () => Promise<void>;
+  startNewChat: () => Promise<string>;
   selectChatMode: (mode: string) => void;
   addNewBot: () => void;
-  removeBot: (index: number) => void;
-  updateBot: (botId: string, updatedBot: Partial<SelectedBot>) => void;
+  removeBot: (botId: string) => void;
+  updateBot: (botData: UpdateBotData) => void;
   clearError: () => void;
 }
 
-export const usePrepareChatStore = create<PrepareChatState>()(
+export const useComposeChatStore = create<ComposeChatState>()(
   subscribeWithSelector((set, get) => ({
     // Initial state
     loading: false,
@@ -43,9 +45,10 @@ export const usePrepareChatStore = create<PrepareChatState>()(
     selectedChatMode: null,
     selectedBots: [],
 
-    loadPrepareChatData: async (): Promise<void> => {
+    loadComposeChatData: async (): Promise<void> => {
       const state = get();
 
+      // If we already have state use it instead
       if (state.availableModes.length > 0 && state.availableProviders.length > 0) {
         return;
       }
@@ -53,7 +56,7 @@ export const usePrepareChatStore = create<PrepareChatState>()(
       try {
         set({ loading: true, error: '' });
 
-        const response = await apiClient.get<PrepareChatData>('/chat/prepare');
+        const response = await apiClient.get<ComposeChatData>('/chat/compose');
         const { modes, bots } = response.data;
 
         set({
@@ -65,12 +68,42 @@ export const usePrepareChatStore = create<PrepareChatState>()(
           selectedBots: [],
         });
 
-        // Auto-populate with one bot after data is loaded
+        // Auto-populate with one default bot after data is loaded
         get().addNewBot();
       } catch (error) {
         set({
           loading: false,
           error: 'Failed to prepare chat data',
+        });
+
+        throw error;
+      }
+    },
+
+    startNewChat: async (): Promise<string> => {
+      const state = get();
+
+      // At least one bot must be selected
+      if (!state.selectedBots.length) {
+        return '';
+      }
+
+      try {
+        set({ loading: true, error: '' });
+
+        const response = await apiClient.post<CreateSessionResponse>('/chat/session', {
+          selectedBots: state.selectedBots,
+          modeId: state.selectedChatMode?.modeId,
+        });
+        const { sessionId } = response.data;
+
+        useChatStore.getState().setChatSessionId(sessionId);
+
+        return sessionId;
+      } catch (error) {
+        set({
+          loading: false,
+          error: 'Failed to start new chat',
         });
 
         throw error;
@@ -95,6 +128,7 @@ export const usePrepareChatStore = create<PrepareChatState>()(
       });
     },
 
+    // Add new bot with default config to selections
     addNewBot: () => {
       const state = get();
 
@@ -119,15 +153,11 @@ export const usePrepareChatStore = create<PrepareChatState>()(
       ]});
     },
 
-    removeBot: (index: number) => {
+    // Remove bot from selections by id
+    removeBot: (botId: string) => {
       const state = get();
-      
-      if (index < 0 || index >= state.selectedBots.length) {
-        set({ error: 'Invalid bot index' });
-        return;
-      }
 
-      const updatedBots = state.selectedBots.filter((_, i) => i !== index);
+      const updatedBots = state.selectedBots.filter((bot) =>bot.botId !== botId);
       
       set({ 
         selectedBots: updatedBots,
@@ -135,13 +165,25 @@ export const usePrepareChatStore = create<PrepareChatState>()(
       });
     },
 
-    updateBot: (botId: string, updatedData: Partial<SelectedBot>) => {
+    // Update bot configuration and/or model
+    updateBot: ({botId, config, modelId}: UpdateBotData) => {
       const state = get();
 
-      const updatedBots = state.selectedBots.map(bot =>
-        bot.botId === botId ? { ...bot, ...updatedData } : bot
-      );
-      
+      const updatedBots = state.selectedBots.map(bot => {
+        if (bot.botId === botId) {
+          return {
+            ...bot,
+            config: [
+              ...(bot?.config || []),
+              ...(config || []),
+            ],
+            modelId: modelId ?? bot.modelId,
+          };
+        }
+
+        return bot;
+      });
+
       set({ 
         selectedBots: updatedBots,
         error: '' 

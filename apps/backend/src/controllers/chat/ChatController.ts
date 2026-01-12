@@ -3,6 +3,7 @@ import { param, body } from 'express-validator';
 
 import {
   type PrepareChatData,
+  type ComposeChatData,
   type CreateSessionResponse,
   BotSnapshot,
 } from '@repo/shared-types';
@@ -24,18 +25,19 @@ export class ChatController extends BaseController {
     super();
     this.socketManager = socketManager;
   }
+
   /**
    * Get available bots, chat modes for session setup.
-   * GET /api/chat/prepare
+   * GET /api/chat/compose
    */
-  async prepareChat(req: Request, res: Response) {
+  async getComposeChatData(req: Request, res: Response) {
     if (!(await this.verifyToken(req, res))) return;
 
     try {
       const availableProviders = await BotRegistry.getAvailableProviders();
       const availableModes = ChatModeRegistry.getAvailableModes();
 
-      this.sendSuccess<PrepareChatData>(res, {
+      this.sendSuccess<ComposeChatData>(res, {
         modes: availableModes,
         bots: availableProviders,
       });
@@ -51,24 +53,17 @@ export class ChatController extends BaseController {
   async createSession(req: Request, res: Response) {
     if (!(await this.verifyToken(req, res))) return;
 
-    // await body('botIds')
-    //   .isArray({ min: 1 })
-    //   .withMessage('At least one bot must be selected')
-    //   .run(req);
+    await body('selectedBots')
+      .isArray({ min: 1 })
+      .withMessage('At least one bot must be selected')
+      .run(req);
 
-    // await body('botIds.*')
-    //   .isString()
-    //   .trim()
-    //   .notEmpty()
-    //   .withMessage('Bot ID must be a non-empty string')
-    //   .run(req);
-
-    // await body('modeId')
-    //   .isString()
-    //   .trim()
-    //   .notEmpty()
-    //   .withMessage('Mode ID is required')
-    //   .run(req);
+    await body('modeId')
+      .isString()
+      .trim()
+      .notEmpty()
+      .withMessage('Mode ID is required')
+      .run(req);
 
     if (!(await this.validateRequest(req, res))) return;
 
@@ -158,7 +153,7 @@ export class ChatController extends BaseController {
     if (!(await this.verifyToken(req, res))) return;
 
     try {
-      const userId = (req as any).userId;
+      const userId = (req as any).body.userId;
 
       if (!userId) {
         return this.handleError(
@@ -193,8 +188,7 @@ export class ChatController extends BaseController {
       }
 
       this.sendSuccess(res, {
-        sessionId: session.sessionId,
-        session,
+        sessionId: session.sessionId
       });
     } catch (error) {
       this.handleError(error, res, 'Failed to get current session');

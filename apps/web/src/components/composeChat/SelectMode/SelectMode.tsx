@@ -3,7 +3,7 @@
 import React from 'react';
 
 import { SelectBox } from '../../ui';
-import { usePrepareChatStore } from '../../../stores/prepareChatStore';
+import { useComposeChatStore } from '../../../stores/composeChatStore';
 import styles from './styles.module.scss';
 
 export const SelectMode: React.FC = () => {
@@ -11,7 +11,7 @@ export const SelectMode: React.FC = () => {
     availableModes,
     selectedChatMode,
     selectChatMode,
-  } = usePrepareChatStore();
+  } = useComposeChatStore();
 
   const handleModeChange = (value: string) => {
     selectChatMode(value);

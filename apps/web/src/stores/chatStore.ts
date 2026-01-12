@@ -9,7 +9,7 @@ import { apiClient } from '../services/api';
 interface ChatState {
   // Private fields - not exposed to components
   _chatManager: ChatManager | null;
-  _sessionId: string | null;
+  sessionId: string | null;
 
   // Public state
   messages: ChatMessageType[];
@@ -22,6 +22,7 @@ interface ChatState {
   initializeChat: () => Promise<void>;
   sendMessage: (content: string) => void;
   destroy: () => void;
+  setChatSessionId: (sessionId: string) => void;
 
   // Internal actions
   _getChatSession: () => Promise<string>;
@@ -31,7 +32,7 @@ export const useChatStore = create<ChatState>()(
   subscribeWithSelector((set, get) => ({
     // Initial state
     _chatManager: null,
-    _sessionId: null,
+    sessionId: null,
     messages: [],
     connected: false,
     isInitialized: false,
@@ -44,20 +45,24 @@ export const useChatStore = create<ChatState>()(
 
       // Prevent multiple initializations
       if (state._chatManager || state.isInitialized || state.loading) {
-        console.log('Chat already initialized');
+        console.warn('Chat already initialized');
         return;
       }
 
       set({ loading: true, error: '' });
 
       try {
+        let sessionId = state.sessionId;
+
         // Get session first
-        const sessionId = await get()._getChatSession();
+        if (!sessionId) {
+          sessionId = await get()._getChatSession();
+        }
 
         // Create ChatManager
         const chatManager = new ChatManager({
           url: process.env.NEXT_PUBLIC_API_HOST!,
-          sessionId,
+          sessionId: sessionId,
           autoConnect: true,
         });
 
@@ -97,6 +102,10 @@ export const useChatStore = create<ChatState>()(
       }
     },
 
+    setChatSessionId: (sessionId: string): void => {
+      set({ sessionId });
+    },
+
     sendMessage: (content: string): void => {
       const state = get();
 
@@ -116,13 +125,15 @@ export const useChatStore = create<ChatState>()(
     destroy: (): void => {
       const state = get();
 
-      if (state._chatManager) {
-        state._chatManager.destroy();
+      if (!state._chatManager) {
+        return;
       }
+
+      state._chatManager.destroy();
 
       set({
         _chatManager: null,
-        _sessionId: null,
+        sessionId: null,
         isInitialized: false,
         connected: false,
         messages: [],
@@ -132,11 +143,11 @@ export const useChatStore = create<ChatState>()(
 
     _getChatSession: async (): Promise<string> => {
       try {
-        const response = await apiClient.post<any>('/chat/session');
+        const response = await apiClient.get<any>('/chat/session/current');
         const { sessionId } = response.data;
 
         set({
-          _sessionId: sessionId,
+          sessionId: sessionId,
           loading: false,
           error: '',
         });

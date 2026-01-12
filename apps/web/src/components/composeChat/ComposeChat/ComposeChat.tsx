@@ -3,25 +3,32 @@
 import React, { useEffect } from 'react';
 
 import { Button } from '../../ui';
-import { usePrepareChatStore } from '../../../stores/prepareChatStore';
+import { useComposeChatStore } from '../../../stores/composeChatStore';
 import { AddBotLayout } from '../AddBotLayout/AddBotLayout';
 import { SelectMode } from '../SelectMode/SelectMode';
 import styles from './styles.module.scss';
+import { useRouter } from 'next/navigation';
 
-export const PrepareChat: React.FC = () => {
+export const ComposeChat: React.FC = () => {
+  const router = useRouter();
   const {
     loading,
     error,
-    loadPrepareChatData,
-  } = usePrepareChatStore();
+    loadComposeChatData,
+    startNewChat,
+  } = useComposeChatStore();
 
   useEffect(() => {
-    loadPrepareChatData();
-  }, [loadPrepareChatData]);
+    loadComposeChatData();
+  }, [loadComposeChatData]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    // TODO: Implement form submission logic
-    console.log('Form submitted');
+  const handleSubmit = async () => {
+    const sessionId = await startNewChat();
+
+    if (sessionId) {
+      router.push('/chat');
+      router.refresh();
+    }
   };
 
   if (loading) {

@@ -7,7 +7,7 @@ export function createChatRoutes(socketManager: SocketManager) {
   const router = Router();
   const chatController = new ChatController(socketManager);
 
-  router.get('/prepare', (req, res) => chatController.prepareChat(req, res));
+  router.get('/compose', (req, res) => chatController.getComposeChatData(req, res));
   router.post('/session', (req, res) => chatController.createSession(req, res));
   router.get('/session/current', (req, res) =>
     chatController.getCurrentSession(req, res)

@@ -35,8 +35,11 @@ export interface LoginResponse {
 export interface RegisterResponse {
   email: string;
 }
-
 export interface PrepareChatData {
+  selectedBots: BotInfo[];
+  selectedModeId: string;
+}
+export interface ComposeChatData {
   modes: ChatModeInfo[];
   bots: BotInfo[];
 }

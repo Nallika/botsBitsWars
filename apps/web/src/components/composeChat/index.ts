@@ -1,5 +1,5 @@
 // Chat components
 export { AddBotLayout } from './AddBotLayout/AddBotLayout';
 export { BotForm } from './BotForm/BotForm';
-export { PrepareChat } from './PrepareChat/PrepareChat';
+export { ComposeChat } from './ComposeChat/ComposeChat';
 export { SelectMode } from './SelectMode/SelectMode';

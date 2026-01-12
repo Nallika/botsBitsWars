@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Input, Button } from '..';
+import { Input, Button } from '../../ui';
 import { useChatStore } from '../../../stores/chatStore';
 import styles from './ChatInput.module.scss';
 

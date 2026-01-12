@@ -1,7 +1,7 @@
 'use client';
 
 import { Card } from 'apps/web/src/components/ui';
-import { PrepareChat } from 'apps/web/src/components/composeChat';
+import { ComposeChat } from 'apps/web/src/components/composeChat';
 
 import styles from './page.module.scss';
 
@@ -14,7 +14,7 @@ export default function PreparePage() {
     <div className={styles.container}>
       <h1>Prepare your chat</h1>
       <Card>
-        <PrepareChat />
+        <ComposeChat />
       </Card>
     </div>
   );
