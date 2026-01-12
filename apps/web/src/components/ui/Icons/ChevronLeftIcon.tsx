@@ -9,7 +9,7 @@ interface ChevronLeftIconProps {
  * Chevron Left Icon component
  * Used for back navigation buttons
  */
-const ChevronLeftIcon: React.FC<ChevronLeftIconProps> = ({
+export const ChevronLeftIcon: React.FC<ChevronLeftIconProps> = ({
   className,
   size = 20,
 }) => {
@@ -26,5 +26,3 @@ const ChevronLeftIcon: React.FC<ChevronLeftIconProps> = ({
     </svg>
   );
 };
-
-export default ChevronLeftIcon;

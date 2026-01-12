@@ -4,12 +4,12 @@ import Link from 'next/link';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { BackButton, Header, MenuButton } from '../../../components';
+import { BackButton, Header, MenuButton } from '../../../components/ui';
 import styles from './styles.module.scss';
 import { check } from '../../../services/auth';
 
 export default function LoggedLayout({
-  children,
+  children, 
 }: {
   children: React.ReactNode;
 }) {

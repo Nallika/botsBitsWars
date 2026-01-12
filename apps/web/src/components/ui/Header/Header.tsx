@@ -15,7 +15,7 @@ interface HeaderProps {
  * - Gradient background matching design system
  * - Responsive design
  */
-const Header: React.FC<HeaderProps> = ({ children, className }) => {
+export const Header: React.FC<HeaderProps> = ({ children, className }) => {
   return (
     <header
       className={`${styles.header} ${className || ''}`}
@@ -25,5 +25,3 @@ const Header: React.FC<HeaderProps> = ({ children, className }) => {
     </header>
   );
 };
-
-export default Header;

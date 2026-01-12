@@ -6,7 +6,7 @@ interface IconProps {
   className?: string;
 }
 
-const ChevronDownIcon: React.FC<IconProps> = ({
+export const ChevronDownIcon: React.FC<IconProps> = ({
   width = 12,
   height = 8,
   className,
@@ -27,5 +27,3 @@ const ChevronDownIcon: React.FC<IconProps> = ({
     />
   </svg>
 );
-
-export default ChevronDownIcon;

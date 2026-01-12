@@ -133,12 +133,7 @@ export const useChatStore = create<ChatState>()(
     _getChatSession: async (): Promise<string> => {
       try {
         const response = await apiClient.post<any>('/chat/session');
-
-        if (!response.data.success) {
-          throw new Error(response.data.error);
-        }
-
-        const { sessionId } = response.data.data;
+        const { sessionId } = response.data;
 
         set({
           _sessionId: sessionId,

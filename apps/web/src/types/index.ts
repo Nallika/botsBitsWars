@@ -1,3 +1,5 @@
+import { BotSnapshot } from "@repo/shared-types/src/botsTypes";
+
 export enum AuthFormMode {
   LOGIN = 'login',
   REGISTER = 'register',
@@ -5,6 +7,10 @@ export enum AuthFormMode {
 
 export interface User {
   email: string;
+}
+
+export interface SelectedBot extends BotSnapshot {
+  botId: string;
 }
 
 export interface ButtonProps

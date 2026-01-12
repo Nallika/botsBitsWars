@@ -7,7 +7,7 @@ export interface ErrorLabelProps {
   className?: string;
 }
 
-const ErrorLabel: React.FC<ErrorLabelProps> = ({ error, className }) => {
+export const ErrorLabel: React.FC<ErrorLabelProps> = ({ error, className }) => {
   if (!error) {
     return null;
   }
@@ -22,5 +22,3 @@ const ErrorLabel: React.FC<ErrorLabelProps> = ({ error, className }) => {
     </span>
   );
 };
-
-export default ErrorLabel;

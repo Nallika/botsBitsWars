@@ -1,46 +1,86 @@
-import type { BotResponse, BotContext, BotInfo } from '@repo/shared-types';
+import { BotSnapshot, BotResponse, ChatContext, BotConfigSchemaField } from '@repo/shared-types';
+
 import { BaseBot } from './BaseBot';
-import { OpenAIProvider, OpenAIError } from '../../vendors/openai';
+import { OpenAIProvider, OpenAIError, OpenAIModels } from '../../vendors/openai';
+import { PROVIDERS_ENUM } from './BotRegistry';
+import { BaseBotConfig } from '../../types';
+
+export interface OpenAIBotConfig {
+  modelId: string;
+  temperature: number;
+  maxTokens: number;
+  context?: string;
+}
 
 /**
  * OpenAI bot implementation extending BaseBot
  */
 export class OpenAIBot extends BaseBot {
-  readonly providerId = 'openai';
-  readonly displayName = 'ChatGPT';
-  readonly color = '#10A37F';
-  readonly description = 'OpenAI GPT-3.5 Turbo';
-
   private provider: OpenAIProvider;
 
-  constructor() {
+  providerId: string = PROVIDERS_ENUM.OPENAI; 
+  modelId: string;
+  config: BaseBotConfig & OpenAIBotConfig;
+  availableModels = Object.values(OpenAIModels);
+  botConfigSchema: BotConfigSchemaField[] = [
+    {
+      name: 'modelId',
+      defaultValue: 'gpt-3.5-turbo',
+      type: 'string',
+      hidden: true,
+    },
+    {
+      name: 'color',
+      defaultValue: '#10A37F',
+      type: 'string',
+      hidden: true,
+    },
+    {
+      name: 'temperature',
+      defaultValue: 0.7,
+      type: 'number',
+      min: 0.1,
+      max: 1,
+      step: 0.1
+    },
+    {
+      name: 'context',
+      defaultValue: '',
+      type: 'string',
+      min: 10,
+      max: 500
+    }
+  ];
+
+  constructor({modelId, config}: BotSnapshot) {
     super();
     this.provider = new OpenAIProvider();
+    this.modelId = modelId;
+    this.config = this.fillBotConfig(config || []) as BaseBotConfig & OpenAIBotConfig;
   }
 
-  getInfo(): BotInfo {
-    return {
-      providerId: this.providerId,
-      name: this.displayName,
-      color: this.color,
-      description: this.description,
-    };
+  getSnapshot(): BaseBotConfig {
+    return this.config as BaseBotConfig;
   }
 
   async sendMessage(
     prompt: string,
-    context?: BotContext
+    context?: ChatContext
   ): Promise<BotResponse> {
     try {
-      const response = await this.provider.sendChatCompletion(prompt, context);
+      const config = {
+        modelId: this.modelId,
+        temperature: this.config.temperature,
+        maxTokens: this.config.maxTokens,
+      }
+      const response = await this.provider.sendChatCompletion(prompt, config, context);
       const processingTime = this.provider.getLastProcessingTime();
 
       return {
-        botName: this.displayName,
-        color: this.color,
+        botName: this.config.name,
+        color: this.config.color,
         content: response.content,
         processingTime,
-        success: true,
       };
     } catch (error) {
       return this.handleError(error as OpenAIError);
@@ -88,11 +128,10 @@ export class OpenAIBot extends BaseBot {
     }
 
     return {
-      color: this.color,
-      botName: this.displayName,
+      color: this.config.color,
+      botName: this.config.name,
       content: errorMessage,
       processingTime: this.provider.getLastProcessingTime(),
-      success: false,
     };
   }
 }

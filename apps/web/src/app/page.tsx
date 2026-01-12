@@ -1,4 +1,5 @@
-import { LinkButton, Header, LogoutButton } from '../components';
+import { LinkButton, Header } from '../components/ui';
+import { LogoutButton } from '../components/auth';
 import { isAuthenticated } from '../services/auth/serverAuth';
 import styles from './styles.module.scss';
 
@@ -26,7 +27,7 @@ export default async function HomePage() {
               <LinkButton href="/prepare" size="medium">
                 Start Chat
               </LinkButton>
-              <LogoutButton variant="secondary" size="medium" />
+              <LogoutButton />
             </>
           )}
         </div>

@@ -58,7 +58,6 @@ describe('Auth API', () => {
       .expect(200);
 
     expect(res.body.data.email).toBe(user.email);
-    expect(res.body.success).toBe(true);
   });
 
   it('does not allow duplicate registration', async () => {
@@ -79,7 +78,6 @@ describe('Auth API', () => {
       .expect(200);
 
     expect(res.body.data.email).toBe(user.email);
-    expect(res.body.success).toBe(true);
   });
 
   it('rejects login with wrong password', async () => {
@@ -124,7 +122,6 @@ describe('Auth API', () => {
       .set('Cookie', cookies)
       .expect(200);
 
-    expect(res.body.data.success).toBe(true);
     expect(res.body.data.message).toBe('Logout successful');
   });
 

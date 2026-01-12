@@ -1,4 +1,4 @@
-import { OpenAIConfig, OpenAIModel } from './types';
+import { OpenAIConfig, OpenAIModelss } from './types';
 
 /**
  * OpenAI configuration settings
@@ -43,20 +43,8 @@ export class OpenAIConfigManager {
 
     return {
       apiKey,
-      model: process.env.OPENAI_MODEL || OpenAIModel.GPT_3_5_TURBO,
-      temperature: parseFloat(process.env.OPENAI_TEMPERATURE || '0.7'),
       maxTokens: parseInt(process.env.OPENAI_MAX_TOKENS || '1000'),
-      timeout: parseInt(process.env.OPENAI_TIMEOUT || '30000'), // 30 seconds
-    };
-  }
-
-  /**
-   * Update configuration (for future model switching)
-   */
-  static updateConfig(updates: Partial<OpenAIConfig>): void {
-    this.config = {
-      ...this.getConfig(),
-      ...updates,
+      timeout: parseInt(process.env.OPENAI_TIMEOUT || '30000'),
     };
   }
 }

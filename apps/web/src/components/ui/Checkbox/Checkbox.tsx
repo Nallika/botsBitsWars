@@ -13,7 +13,7 @@ export interface CheckboxProps {
   onBlur?: () => void;
 }
 
-const Checkbox: React.FC<CheckboxProps> = ({
+export const Checkbox: React.FC<CheckboxProps> = ({
   checked = false,
   label,
   disabled = false,
@@ -64,5 +64,3 @@ const Checkbox: React.FC<CheckboxProps> = ({
     </label>
   );
 };
-
-export default Checkbox;

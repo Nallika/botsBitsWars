@@ -1,7 +1,8 @@
 import OpenAI from 'openai';
-import type { BotContext } from '@repo/shared-types';
+import type { ChatContext } from '@repo/shared-types';
 import { OpenAIConfigManager } from './config';
-import { OpenAIResponse, OpenAIError, OpenAIModel } from './types';
+import { OpenAIResponse, OpenAIError, OpenAIModels } from './types';
+import { OpenAIBotConfig } from '../../services/bot/OpenAIBot';
 
 /**
  * OpenAI API provider - handles direct communication with OpenAI API
@@ -27,11 +28,11 @@ export class OpenAIProvider {
    */
   async sendChatCompletion(
     prompt: string,
-    context?: BotContext
+    config: OpenAIBotConfig,
+    context?: ChatContext,
   ): Promise<OpenAIResponse> {
     try {
       this.startTime = Date.now();
-      const config = OpenAIConfigManager.getConfig();
 
       // Build messages array
       const messages: OpenAI.ChatCompletionMessageParam[] = [];
@@ -44,15 +45,16 @@ export class OpenAIProvider {
         });
       }
 
+      // @TODO
       // Add conversation history if provided
-      if (context?.conversationHistory) {
-        for (const historyMessage of context.conversationHistory) {
-          messages.push({
-            role: historyMessage.sender === 'user' ? 'user' : 'assistant',
-            content: historyMessage.content,
-          });
-        }
-      }
+      // if (context?.conversationHistory) {
+      //   for (const historyMessage of context.conversationHistory) {
+      //     messages.push({
+      //       role: historyMessage.sender === 'user' ? 'user' : 'assistant',
+      //       content: historyMessage.content,
+      //     });
+      //   }
+      // }
 
       // Add current prompt
       messages.push({
@@ -62,10 +64,10 @@ export class OpenAIProvider {
 
       // Make API call
       const completion = await this.client.chat.completions.create({
-        model: context?.temperature !== undefined ? config.model : config.model,
+        model: config.modelId,
         messages,
-        temperature: context?.temperature ?? config.temperature,
-        max_tokens: context?.maxTokens ?? config.maxTokens,
+        temperature: config.temperature,
+        max_tokens: config.maxTokens,
       });
 
       const choice = completion.choices[0];
@@ -100,7 +102,7 @@ export class OpenAIProvider {
     try {
       // Simple test request to check API availability
       await this.client.chat.completions.create({
-        model: OpenAIModel.GPT_3_5_TURBO,
+        model: OpenAIModels.GPT_3_5_TURBO,
         messages: [{ role: 'user', content: 'test' }],
         max_tokens: 1,
       });

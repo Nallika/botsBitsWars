@@ -1,4 +1,4 @@
-export { default as ChevronDownIcon } from './ChevronDownIcon';
-export { default as ChevronLeftIcon } from './ChevronLeftIcon';
-export { default as CheckIcon } from './CheckIcon';
-export { default as MenuIcon } from './MenuIcon';
+export { ChevronDownIcon } from './ChevronDownIcon';
+export { ChevronLeftIcon } from './ChevronLeftIcon';
+export { CheckIcon } from './CheckIcon';
+export { MenuIcon } from './MenuIcon';

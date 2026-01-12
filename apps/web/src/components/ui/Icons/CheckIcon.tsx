@@ -6,7 +6,7 @@ interface IconProps {
   className?: string;
 }
 
-const CheckIcon: React.FC<IconProps> = ({
+export const CheckIcon: React.FC<IconProps> = ({
   width = 12,
   height = 9,
   className,
@@ -27,5 +27,3 @@ const CheckIcon: React.FC<IconProps> = ({
     />
   </svg>
 );
-
-export default CheckIcon;

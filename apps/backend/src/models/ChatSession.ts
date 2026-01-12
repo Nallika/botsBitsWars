@@ -1,9 +1,10 @@
+import { BotSnapshot } from '@repo/shared-types/src';
 import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IChatSession extends Document {
   sessionId: string;
   userId: string;
-  botIds: string[];
+  botsSnapshots: BotSnapshot[];
   modeId: string;
   createdAt: Date;
   updatedAt: Date;
@@ -20,10 +21,26 @@ const ChatSessionSchema = new Schema<IChatSession>({
     required: true,
     ref: 'User',
   },
-  botIds: {
-    type: [String],
-    default: [],
-  },
+  botsSnapshots: [{
+    providerId: {
+      type: String,
+      required: true,
+    },
+    modelId: {
+      type: String,
+      required: true,
+    },
+    config: [{
+      name: {
+        type: String,
+        required: true,
+      },
+      value: {
+        type: Schema.Types.Mixed,
+        required: true,
+      },
+    }],
+  }],
   modeId: {
     type: String,
     required: true,

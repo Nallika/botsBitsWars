@@ -1,9 +1,8 @@
-import { CHAT_MODE_ENUM, BotMessage, PROVIDERS_ENUM } from '@repo/shared-types';
+import { BotMessage } from '@repo/shared-types';
 
 import { BaseBot } from '../bot/BaseBot';
-import { BotRegistry } from '../bot/BotRegistry';
 import { SocketManager } from '../socket/SocketManager';
-import { DefaultChatMode, ChatModeRegistry } from '../chatMode';
+import { DefaultChatMode, ChatModeRegistry, CHAT_MODE_ENUM } from '../chatMode';
 import { logger } from '../logger';
 
 /**
@@ -13,44 +12,47 @@ import { logger } from '../logger';
  */
 export class ChatOrchestrator {
   private sessionId: string;
-  private bots: Map<string, BaseBot> = new Map();
+  private bots: Array<BaseBot>;
   private modeId: string;
   private chatMode: DefaultChatMode;
   private socketManager: SocketManager;
 
   constructor(
     sessionId: string,
-    botIds: Array<PROVIDERS_ENUM>,
+    bots: Array<BaseBot>,
     modeId: CHAT_MODE_ENUM,
     socketManager: SocketManager
   ) {
     this.sessionId = sessionId;
     this.modeId = modeId;
     this.chatMode = ChatModeRegistry.getMode(modeId);
+    this.bots = bots;
     this.socketManager = socketManager;
-
-    botIds.forEach(botId => {
-      const bot = BotRegistry.createBot(botId);
-      if (bot) {
-        this.bots.set(botId, bot);
-      }
-    });
   }
 
   async initializeChat(): Promise<void> {
-    const messageStream = this.socketManager.getMessageSubject(this.sessionId);
+    try {
+      const messageStream = this.socketManager.getMessageSubject(this.sessionId);
 
-    this.chatMode.initializeBots(Array.from(this.bots.values()));
-    this.chatMode.setupMessageProcessing(
-      messageStream,
-      this.handleBotResponse.bind(this)
-    );
+      this.chatMode.initializeBots(this.bots);
+      this.chatMode.setupMessageProcessing(
+        messageStream,
+        this.handleBotResponse.bind(this)
+      );
 
-    logger.info('ChatOrchestrator initialized successfully', {
-      sessionId: this.sessionId,
-      botCount: this.bots.size,
-      modeId: this.modeId,
-    });
+      logger.info('ChatOrchestrator initialized successfully', {
+        sessionId: this.sessionId,
+        botCount: this.bots.length,
+        modeId: this.modeId,
+      });
+    } catch (error) {
+      logger.error('Failed to initialize ChatOrchestrator', {
+        sessionId: this.sessionId,
+        error,
+      });
+      throw error;
+    }
+   
   }
 
   /**

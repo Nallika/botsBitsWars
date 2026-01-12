@@ -1,7 +1,11 @@
-import { BotInfo, PROVIDERS_ENUM } from '@repo/shared-types';
+import { BotInfo, BotSnapshot } from '@repo/shared-types';
 
 import { BaseBot } from './BaseBot';
 import { OpenAIBot } from './OpenAIBot';
+
+export enum PROVIDERS_ENUM {
+  OPENAI = 'openai',
+}
 
 /**
  * Registry for managing bot instances system-wide.
@@ -15,33 +19,31 @@ export class BotRegistry {
    * @param provider - LLM provider for bot
    * @returns The bot instance or null if not found
    */
-  static createBot(provider: PROVIDERS_ENUM): BaseBot | null {
-    switch (provider) {
+  static createBot(botData: BotSnapshot): BaseBot {
+    try {
+      switch (botData.providerId) {
       case PROVIDERS_ENUM.OPENAI:
-        return new OpenAIBot();
+        return new OpenAIBot(botData);
       // TODO: Add other providers here (GeminiBot, etc.)
       default:
-        return null;
+        throw new Error(`Unsupported provider: ${botData.providerId}`);
+      }
+    } catch (error) {
+      console.error('Error creating bot:', error);
+      throw error;
     }
   }
 
-  static createListOfBots(providers: PROVIDERS_ENUM[]): BaseBot[] | null {
-    return providers
-      .map(provider => this.createBot(provider))
-      .filter((bot): bot is BaseBot => bot !== null);
-  }
-
-  /**
-   * @TODO: Implement actual availability checks and different bot in provider
-   */
-  static getAvailableBots(): BotInfo[] {
-    return [
-      {
+  static getAvailableProviders(): BotInfo[] {
+    // @TODO: refactor this
+    const openAiBot = new OpenAIBot({
         providerId: PROVIDERS_ENUM.OPENAI,
-        name: 'OpenAI',
-        color: '#00A1F1',
-        description: 'OpenAI GPT-3 powered chatbot',
-      },
+        modelId: 'gpt-3.5-turbo',
+        config: [],
+      });
+    
+    return [
+      openAiBot.getSchema(),
     ];
   }
 }

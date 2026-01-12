@@ -2,7 +2,6 @@ import { Observable, Subscription, switchMap, from } from 'rxjs';
 
 import {
   type BotResponse,
-  CHAT_MODE_ENUM,
   ChatMessageType,
   BotMessage,
   ChatModeInfo,
@@ -11,6 +10,7 @@ import {
 import { BaseBot } from '../bot';
 import { generateMessageId } from '../../utils/helpers';
 import { logger } from '../logger';
+import { CHAT_MODE_ENUM } from './chatModeTypes';
 
 export interface ChatModeInterface {
   bots: Map<string, BaseBot>;
@@ -25,7 +25,7 @@ export interface ChatModeInterface {
  * Default chat mode implementation
  */
 export class DefaultChatMode implements ChatModeInterface {
-  static readonly modeId: string = CHAT_MODE_ENUM.DEFAULT;
+  static readonly modeId: CHAT_MODE_ENUM = CHAT_MODE_ENUM.DEFAULT;
   static readonly minBots: number = 1;
   static readonly maxBots: number = 5;
   static readonly title: string = 'Standard Chat';
@@ -46,7 +46,12 @@ export class DefaultChatMode implements ChatModeInterface {
   }
 
   initializeBots(bots: BaseBot[]): void {
-    this.bots = new Map(bots.map(bot => [bot.providerId, bot]));
+    // @TODO why group by provider ?
+    this.bots = new Map(
+      bots
+        .filter(bot => typeof bot.config.providerId === 'string')
+        .map(bot => [bot.config.providerId as string, bot])
+    );
   }
 
   setupMessageProcessing(

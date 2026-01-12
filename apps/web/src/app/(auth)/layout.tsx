@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { Header } from '../../components';
-import { AuthProvider } from '../../context/AuthContext';
+
+import { Header } from '../../components/ui';
+import { AuthProvider } from '../../components/auth';
 import styles from './styles.module.scss';
 
 export default function AuthLayout({

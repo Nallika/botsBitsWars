@@ -1,9 +1,8 @@
-import type { PROVIDERS_ENUM, CHAT_MODE_ENUM } from '@repo/shared-types';
-
 import { ChatOrchestrator } from './ChatOrchestrator';
 import { logger } from '../logger';
-import { Socket } from 'socket.io';
 import { SocketManager } from '../socket/SocketManager';
+import { BaseBot } from '../bot';
+import { CHAT_MODE_ENUM } from '../chatMode';
 
 /**
  * Registry to manage ChatOrchestrator instances per session.
@@ -17,7 +16,7 @@ export class ChatRegistry {
    */
   static createOrchestrator(
     sessionId: string,
-    botIds: Array<PROVIDERS_ENUM>,
+    bots: Array<BaseBot>,
     modeId: CHAT_MODE_ENUM,
     socketManager: SocketManager
   ): ChatOrchestrator {
@@ -28,7 +27,7 @@ export class ChatRegistry {
 
     const orchestrator = new ChatOrchestrator(
       sessionId,
-      botIds,
+      bots,
       modeId,
       socketManager
     );

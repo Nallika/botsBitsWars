@@ -98,10 +98,7 @@ export class AuthController extends BaseController {
     try {
       AuthService.clearCookie(res);
 
-      this.sendSuccess(res, {
-        success: true,
-        message: 'Logout successful',
-      });
+      this.sendSuccess(res, {});
     } catch (error) {
       this.handleError(error, res, 'Logout failed', 400);
     }

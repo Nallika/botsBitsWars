@@ -8,7 +8,7 @@ export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
 }
 
-const Card: React.FC<CardProps> = ({
+export const Card: React.FC<CardProps> = ({
   children,
   variant = 'default',
   padding = 'md',
@@ -30,5 +30,3 @@ const Card: React.FC<CardProps> = ({
     </div>
   );
 };
-
-export default Card;

@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosResponse } from 'axios';
 
-import { ApiErrorResponse, ApiResponse } from '@repo/shared-types/src';
+import { ErrorResponse } from '@repo/shared-types/src';
 
 const baseURL = `${process.env.NEXT_PUBLIC_API_HOST!}/api`;
 
@@ -15,12 +15,8 @@ export const apiClient = axios.create({
 
 // Response interceptor for error handling and logging
 apiClient.interceptors.response.use(
-  (response: AxiosResponse<ApiResponse>) => {
-    response.data = response.data.data;
-
-    return response;
-  },
-  (error: AxiosError<ApiErrorResponse>) => {
+  (response: AxiosResponse) => response,
+  (error: AxiosError<ErrorResponse>) => {
     if (process.env.NODE_ENV === 'development') {
       console.error(
         `❌ API Error: ${error.config?.method?.toUpperCase()} ${error.config?.url} - ${error.response?.status}`
@@ -35,7 +31,7 @@ apiClient.interceptors.response.use(
 );
 
 // Helper function to extract user-friendly error messages
-function getErrorMessage(error: AxiosError<ApiErrorResponse>): string {
+function getErrorMessage(error: AxiosError<ErrorResponse>): string {
   // Network or timeout errors
   if (!error.response) {
     if (error.code === 'ECONNREFUSED') {

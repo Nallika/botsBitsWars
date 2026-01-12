@@ -6,8 +6,7 @@ import Link from 'next/link';
 
 import { AuthData } from '@repo/shared-types/src';
 
-import { AuthForm } from '../../../components';
-import { useAuth } from '../../../context/AuthContext';
+import { AuthForm, useAuth } from '../../../components/auth';
 import styles from './styles.module.scss';
 
 export default function RegisterPage() {

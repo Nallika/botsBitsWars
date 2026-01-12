@@ -1,6 +1,7 @@
-import { CHAT_MODE_ENUM, ChatModeInfo } from '@repo/shared-types';
+import { ChatModeInfo } from '@repo/shared-types';
 
 import { DefaultChatMode } from './DefaultChatMode';
+import { CHAT_MODE_ENUM } from './chatModeTypes';
 
 /**
  * Registry for managing chat mode instances system-wide.
@@ -15,6 +16,8 @@ export class ChatModeRegistry {
     switch (modeId) {
       case CHAT_MODE_ENUM.DEFAULT:
         return new DefaultChatMode();
+      default:
+        throw new Error(`Unknown chat mode: ${modeId}`);
     }
   }
 

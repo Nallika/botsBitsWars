@@ -9,7 +9,7 @@ interface MenuIconProps {
  * Menu Icon component (hamburger menu)
  * Used for mobile menu buttons
  */
-const MenuIcon: React.FC<MenuIconProps> = ({ className, size = 20 }) => {
+export const MenuIcon: React.FC<MenuIconProps> = ({ className, size = 20 }) => {
   return (
     <svg
       className={className}
@@ -23,5 +23,3 @@ const MenuIcon: React.FC<MenuIconProps> = ({ className, size = 20 }) => {
     </svg>
   );
 };
-
-export default MenuIcon;

@@ -2,9 +2,9 @@ import { Request, Response } from 'express';
 import { param, body } from 'express-validator';
 
 import {
-  type PrepareChatResponse,
+  type PrepareChatData,
   type CreateSessionResponse,
-  CHAT_MODE_ENUM,
+  BotSnapshot,
 } from '@repo/shared-types';
 
 import { User } from '../../models/User';
@@ -12,9 +12,10 @@ import { createChatId } from '../../utils/helpers';
 import { BaseController } from '../base/BaseController';
 import { ChatSession } from '../../models/ChatSession';
 import { BotRegistry } from '../../services/bot/BotRegistry';
-import { ChatModeRegistry } from '../../services/chatMode';
+import { CHAT_MODE_ENUM, ChatModeRegistry } from '../../services/chatMode';
 import { ChatRegistry } from '../../services/chat/ChatRegistry';
 import type { SocketManager } from '../../services/socket/SocketManager';
+import { BaseBotConfig } from '../../types';
 
 export class ChatController extends BaseController {
   private socketManager: SocketManager;
@@ -31,12 +32,12 @@ export class ChatController extends BaseController {
     if (!(await this.verifyToken(req, res))) return;
 
     try {
-      const availableBots = await BotRegistry.getAvailableBots();
+      const availableProviders = await BotRegistry.getAvailableProviders();
       const availableModes = ChatModeRegistry.getAvailableModes();
 
-      this.sendSuccess<PrepareChatResponse>(res, {
+      this.sendSuccess<PrepareChatData>(res, {
         modes: availableModes,
-        bots: availableBots,
+        bots: availableProviders,
       });
     } catch (error) {
       this.handleError(error, res, 'Failed to prepare chat configuration');
@@ -73,30 +74,44 @@ export class ChatController extends BaseController {
 
     try {
       const { userId } = (req as any).body;
-      const botIds = ['openai'];
-      const modeId = CHAT_MODE_ENUM.DEFAULT;
-      //const { botIds, modeId } = req.body;
+      // @todo: crutch
+      // const botIds = ['openai'];
+      // const modeId = CHAT_MODE_ENUM.DEFAULT;
+      const { selectedBots, modeId } = req.body as {
+        selectedBots: BotSnapshot[];
+        modeId: CHAT_MODE_ENUM;
+      };
+
+      // Full bot configuration that allow re-create in session
+      const botsSnapshots: BaseBotConfig[] = [];
+
+      const bots = selectedBots.map(botData => {
+        const bot = BotRegistry.createBot(botData);
+        botsSnapshots.push(bot.getSnapshot());
+        return bot;
+      });
 
       const sessionId = createChatId(userId);
 
       await ChatSession.create({
         sessionId,
         userId,
-        botIds,
+        botsSnapshots,
         modeId,
-      });
-
-      await User.findByIdAndUpdate(userId, {
-        currentSessionId: sessionId,
       });
 
       const orchestrator = ChatRegistry.createOrchestrator(
         sessionId,
-        botIds as any,
+        bots,
         modeId,
         this.socketManager
       );
+
       await orchestrator.initializeChat();
+
+      await User.findByIdAndUpdate(userId, {
+        currentSessionId: sessionId,
+      });
 
       this.sendSuccess<CreateSessionResponse>(res, {
         sessionId,

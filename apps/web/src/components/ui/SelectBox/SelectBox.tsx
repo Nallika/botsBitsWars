@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 
-import { ChevronDownIcon, CheckIcon } from '../Icons';
+import { ChevronDownIcon } from '../Icons';
 import styles from './styles.module.scss';
 
 export interface SelectOption {
@@ -13,22 +13,20 @@ export interface SelectOption {
 
 export interface SelectBoxProps {
   options: SelectOption[];
-  value?: string | string[];
+  value?: string;
   placeholder?: string;
-  multiselect?: boolean;
   disabled?: boolean;
   fullWidth?: boolean;
   className?: string;
-  onChange?: (value: string | string[]) => void;
+  onChange?: (value: string) => void;
   onFocus?: () => void;
   onBlur?: () => void;
 }
 
-const SelectBox: React.FC<SelectBoxProps> = ({
+export const SelectBox: React.FC<SelectBoxProps> = ({
   options,
   value,
   placeholder = 'Select option...',
-  multiselect = false,
   disabled = false,
   fullWidth = false,
   className,
@@ -86,28 +84,14 @@ const SelectBox: React.FC<SelectBoxProps> = ({
   };
 
   const handleOptionClick = (optionValue: string) => {
-    if (multiselect) {
-      const newValues = selectedValues.includes(optionValue)
-        ? selectedValues.filter(v => v !== optionValue)
-        : [...selectedValues, optionValue];
-
-      setSelectedValues(newValues);
-      onChange?.(newValues);
-    } else {
-      setSelectedValues([optionValue]);
-      onChange?.(optionValue);
-      setIsOpen(false);
-    }
+    setSelectedValues([optionValue]);
+    onChange?.(optionValue);
+    setIsOpen(false);
   };
 
   const getDisplayText = () => {
     if (selectedValues.length === 0) {
       return placeholder;
-    }
-
-    if (!multiselect) {
-      const option = options.find(opt => opt.value === selectedValues[0]);
-      return option?.label || selectedValues[0];
     }
 
     if (selectedValues.length === 1) {
@@ -168,11 +152,6 @@ const SelectBox: React.FC<SelectBoxProps> = ({
               role="option"
               aria-selected={selectedValues.includes(option.value)}
             >
-              {multiselect && (
-                <span className={styles.checkbox}>
-                  {selectedValues.includes(option.value) && <CheckIcon />}
-                </span>
-              )}
               <span className={styles.label}>{option.label}</span>
             </div>
           ))}
@@ -181,5 +160,3 @@ const SelectBox: React.FC<SelectBoxProps> = ({
     </div>
   );
 };
-
-export default SelectBox;

@@ -1,4 +1,4 @@
-import { ChatFrame } from '../../../../components';
+import { ChatFrame } from '../../../../components/chat';
 import styles from './page.module.scss';
 
 /**
