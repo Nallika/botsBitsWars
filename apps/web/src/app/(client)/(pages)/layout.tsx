@@ -9,7 +9,7 @@ import styles from './styles.module.scss';
 import { check } from '../../../services/auth';
 
 export default function LoggedLayout({
-  children, 
+  children,
 }: {
   children: React.ReactNode;
 }) {

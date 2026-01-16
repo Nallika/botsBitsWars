@@ -2,12 +2,12 @@
 
 import React from 'react';
 
-import { BotConfigField, BotInfo } from '@repo/shared-types/src';
+import { BaseBotConfig, ProviderInfo } from '@repo/shared-types/src';
 
 import { SelectBox } from '../../ui';
 import { useComposeChatStore } from '../../../stores/composeChatStore';
 import { BotField } from '../BotField/BotField';
-import { SelectedBot } from '../../../types';
+import { botField, SelectedBot } from '../../../types';
 import styles from './styles.module.scss';
 
 interface BotFormProps {
@@ -20,10 +20,13 @@ interface BotFormProps {
  */
 export const BotForm: React.FC<BotFormProps> = ({ botData }) => {
   const { availableProviders, updateBot } = useComposeChatStore();
-  const [ selectedProvider, setSelectedProvider ] = React.useState<BotInfo>(
-    availableProviders.find(provider => provider.providerId === botData.providerId) as BotInfo
+  const [selectedProvider, setSelectedProvider] = React.useState<ProviderInfo>(
+    availableProviders.find(
+      provider => provider.providerId === botData.providerId
+    ) as ProviderInfo
   );
 
+  // @todo: pretyfy, maybe add some util formatter ?
   // Formatted values for SelectBox components
   const formattedProviders = availableProviders.map(provider => ({
     value: provider.providerId,
@@ -37,38 +40,53 @@ export const BotForm: React.FC<BotFormProps> = ({ botData }) => {
   }));
 
   const onProviderChange = (providerId: string) => {
-    const provider = availableProviders.find(provider => provider.providerId === providerId);
+    const provider = availableProviders.find(
+      provider => provider.providerId === providerId
+    );
 
     if (provider) {
       setSelectedProvider(provider);
     }
-  }
+  };
 
-  const updateBotField = (fieldData: BotConfigField) => {
-    updateBot({botId: botData.botId, config: [fieldData]});
-  }
+  // Update single bot field in the store
+  const updateBotField = (fieldData: botField) => {
+    updateBot({
+      botId: botData.botId,
+      botConfiguration: {
+        [fieldData.name]: fieldData.value,
+      },
+    });
+  };
 
   const updateBotModel = (modelId: string) => {
-    updateBot({botId: botData.botId, modelId});
-  }
+    updateBot({ botId: botData.botId, modelId });
+  };
 
   const renderFields = () => {
     return (
       <>
-        {selectedProvider.botConfigSchema.map((field) => {
-          const fieldData = botData.config?.find(botDataField => botDataField.name === field.name);
-          const schema = selectedProvider.botConfigSchema.find(schemaField => schemaField.name === field.name);
+        {selectedProvider.botConfigSchema.map(field => {
+          const fieldValue =
+            (botData.botConfiguration &&
+              botData.botConfiguration[field.name]) ||
+            field.defaultValue;
+          const schema = selectedProvider.botConfigSchema.find(
+            schemaField => schemaField.name === field.name
+          );
 
           if (!schema || schema.hidden) {
             return null;
           }
 
-          return <BotField 
-            key={field.name} 
-            fieldData={fieldData} 
-            schema={schema} 
-            updateFieldData={updateBotField} 
-          />;
+          return (
+            <BotField
+              key={field.name}
+              fieldValue={fieldValue}
+              schema={schema}
+              updateFieldData={updateBotField}
+            />
+          );
         })}
       </>
     );

@@ -6,12 +6,10 @@ import { SelectBox } from '../../ui';
 import { useComposeChatStore } from '../../../stores/composeChatStore';
 import styles from './styles.module.scss';
 
+// Display chat mode selector and selected mode info
 export const SelectMode: React.FC = () => {
-  const {
-    availableModes,
-    selectedChatMode,
-    selectChatMode,
-  } = useComposeChatStore();
+  const { availableModes, selectedChatMode, selectChatMode } =
+    useComposeChatStore();
 
   const handleModeChange = (value: string) => {
     selectChatMode(value);
@@ -42,7 +40,8 @@ export const SelectMode: React.FC = () => {
           <p>{selectedChatMode.description}</p>
           <p>
             Bots required: {selectedChatMode.minBots}
-            {selectedChatMode.minBots !== selectedChatMode.maxBots && ` - ${selectedChatMode.maxBots}`}
+            {selectedChatMode.minBots !== selectedChatMode.maxBots &&
+              ` - ${selectedChatMode.maxBots}`}
           </p>
         </div>
       )}

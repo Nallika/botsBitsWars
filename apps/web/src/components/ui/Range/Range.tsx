@@ -35,7 +35,7 @@ export const Range: React.FC<RangeProps> = ({
   onFocus,
   onBlur,
   onPointerUp,
-  name
+  name,
 }) => {
   // Ensure value is within bounds
   const clampedValue = Math.min(Math.max(value, min), max);

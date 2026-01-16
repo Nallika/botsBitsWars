@@ -1,4 +1,3 @@
-
 export enum CONNECTION_STATUS_ENUM {
   disconnected = 'disconnected',
   connecting = 'connecting',

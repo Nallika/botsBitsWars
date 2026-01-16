@@ -9,14 +9,15 @@ import { SelectMode } from '../SelectMode/SelectMode';
 import styles from './styles.module.scss';
 import { useRouter } from 'next/navigation';
 
-export const ComposeChat: React.FC = () => {
+/**
+ * Main component for composing a new chat session.
+ * Loads available chat modes and bot providers on mount.
+ * Allows selecting chat mode, adding/configuring bots, and starting a new chat session.
+ */
+export const ComposeChatContainer: React.FC = () => {
   const router = useRouter();
-  const {
-    loading,
-    error,
-    loadComposeChatData,
-    startNewChat,
-  } = useComposeChatStore();
+  const { loading, error, loadComposeChatData, startNewChat } =
+    useComposeChatStore();
 
   useEffect(() => {
     loadComposeChatData();
@@ -25,6 +26,7 @@ export const ComposeChat: React.FC = () => {
   const handleSubmit = async () => {
     const sessionId = await startNewChat();
 
+    // Navigate to chat interface if session was created successfully
     if (sessionId) {
       router.push('/chat');
       router.refresh();

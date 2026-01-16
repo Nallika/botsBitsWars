@@ -1,4 +1,4 @@
-import { BotConfigField, BotSnapshot } from "@repo/shared-types/src/botsTypes";
+import { BaseBotConfig, BotSnapshot } from '@repo/shared-types/src/botsTypes';
 
 export enum AuthFormMode {
   LOGIN = 'login',
@@ -13,12 +13,16 @@ export interface SelectedBot extends BotSnapshot {
   botId: string;
 }
 
-export interface UpdateBotData {
-  botId: string;
-  config?: BotConfigField[];
-  modelId?: string;
+export interface botField {
+  name: string;
+  value: string | number | boolean;
 }
 
+export interface UpdateBotData {
+  botId: string;
+  botConfiguration?: BaseBotConfig;
+  modelId?: string;
+}
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'transparent';

@@ -20,7 +20,6 @@ const ChatFrame: React.FC = React.memo(() => {
 
     // Cleanup on unmount
     return () => {
-            console.log('ChatFrame unmounting');
       destroy();
     };
   }, [initializeChat, destroy]);

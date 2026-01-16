@@ -2,9 +2,8 @@ import { Request, Response } from 'express';
 import { param, body } from 'express-validator';
 
 import {
-  type PrepareChatData,
-  type ComposeChatData,
-  type CreateSessionResponse,
+  ComposeChatResponse,
+  CreateSessionResponse,
   BotSnapshot,
 } from '@repo/shared-types';
 
@@ -13,17 +12,20 @@ import { createChatId } from '../../utils/helpers';
 import { BaseController } from '../base/BaseController';
 import { ChatSession } from '../../models/ChatSession';
 import { BotRegistry } from '../../services/bot/BotRegistry';
-import { CHAT_MODE_ENUM, ChatModeRegistry } from '../../services/chatMode';
+import { ChatModeRegistry } from '../../services/chatMode';
 import { ChatRegistry } from '../../services/chat/ChatRegistry';
 import type { SocketManager } from '../../services/socket/SocketManager';
-import { BaseBotConfig } from '../../types';
+import { CHAT_MODE_ENUM } from '../../types';
 
+// Chat routes representation
 export class ChatController extends BaseController {
   private socketManager: SocketManager;
+  private botRegistry: BotRegistry;
 
-  constructor(socketManager: SocketManager) {
+  constructor(socketManager: SocketManager, botRegistry: BotRegistry) {
     super();
     this.socketManager = socketManager;
+    this.botRegistry = botRegistry;
   }
 
   /**
@@ -34,12 +36,12 @@ export class ChatController extends BaseController {
     if (!(await this.verifyToken(req, res))) return;
 
     try {
-      const availableProviders = await BotRegistry.getAvailableProviders();
+      const availableProviders = await this.botRegistry.getAvailableProviders();
       const availableModes = ChatModeRegistry.getAvailableModes();
 
-      this.sendSuccess<ComposeChatData>(res, {
-        modes: availableModes,
-        bots: availableProviders,
+      this.sendSuccess<ComposeChatResponse>(res, {
+        availableModes,
+        availableProviders,
       });
     } catch (error) {
       this.handleError(error, res, 'Failed to prepare chat configuration');
@@ -69,25 +71,26 @@ export class ChatController extends BaseController {
 
     try {
       const { userId } = (req as any).body;
-      // @todo: crutch
-      // const botIds = ['openai'];
-      // const modeId = CHAT_MODE_ENUM.DEFAULT;
+
+      // @todo add request typing
       const { selectedBots, modeId } = req.body as {
         selectedBots: BotSnapshot[];
         modeId: CHAT_MODE_ENUM;
       };
 
       // Full bot configuration that allow re-create in session
-      const botsSnapshots: BaseBotConfig[] = [];
+      const botsSnapshots: BotSnapshot[] = [];
 
+      // Create bot instances and fill snapshots
       const bots = selectedBots.map(botData => {
-        const bot = BotRegistry.createBot(botData);
+        const bot = this.botRegistry.createBot(botData);
         botsSnapshots.push(bot.getSnapshot());
         return bot;
       });
 
       const sessionId = createChatId(userId);
 
+      // Saving chat session to DB
       await ChatSession.create({
         sessionId,
         userId,
@@ -95,6 +98,7 @@ export class ChatController extends BaseController {
         modeId,
       });
 
+      // Orchestrator holds chat session components, hold it in memory, re-create when needed
       const orchestrator = ChatRegistry.createOrchestrator(
         sessionId,
         bots,
@@ -102,12 +106,15 @@ export class ChatController extends BaseController {
         this.socketManager
       );
 
+      // Actual chat socket initialization
       await orchestrator.initializeChat();
 
+      // Update user's current session in DB
       await User.findByIdAndUpdate(userId, {
         currentSessionId: sessionId,
       });
 
+      // Send just created session ID to the client
       this.sendSuccess<CreateSessionResponse>(res, {
         sessionId,
       });
@@ -188,7 +195,7 @@ export class ChatController extends BaseController {
       }
 
       this.sendSuccess(res, {
-        sessionId: session.sessionId
+        sessionId: session.sessionId,
       });
     } catch (error) {
       this.handleError(error, res, 'Failed to get current session');

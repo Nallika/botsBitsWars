@@ -18,7 +18,10 @@ interface MenuButtonProps {
  * - Only visible on mobile devices
  * - Customizable onClick handler
  */
-export const MenuButton: React.FC<MenuButtonProps> = ({ className, onClick }) => {
+export const MenuButton: React.FC<MenuButtonProps> = ({
+  className,
+  onClick,
+}) => {
   return (
     <Button
       variant="transparent"

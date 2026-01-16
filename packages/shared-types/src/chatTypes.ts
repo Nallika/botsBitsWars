@@ -1,6 +1,8 @@
 /**
  * Chat-related constants
  */
+
+// Chat mode information mold
 export type ChatModeInfo = {
   modeId: string;
   title: string;
@@ -9,15 +11,15 @@ export type ChatModeInfo = {
   maxBots: number;
 };
 
+// CHat bot message, should be extended with metadata
 export interface BotResponse {
   color: string;
   botName: string;
   content: string;
-  processingTime: number;
 }
 
+// Not used yet
 export interface ChatContext {
   conversationHistory?: string[]; // temp
   systemPrompt?: string;
 }
-

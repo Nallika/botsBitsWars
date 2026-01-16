@@ -2,36 +2,32 @@
  * Bot-related types and interfaces
  */
 
-// Bot config chema to provide to front
+// This represents bot configuration field, used for dynamic forms and validation
 export interface BotConfigSchemaField {
   name: string;
   type: 'number' | 'string' | 'boolean';
-  defaultValue?: number | string | boolean;
+  defaultValue: number | string | boolean;
   min?: number;
   max?: number;
   step?: number;
   hidden?: boolean;
 }
 
-export interface BotInfo {
+// Information about available bot provider and its bots
+export interface ProviderInfo {
   providerId: string;
   botsList: string[];
   botConfigSchema: BotConfigSchemaField[];
 }
 
-export interface BotConfigField {
-  name: string;
-  value: number | string | boolean;
+// Abstractbot configuration field, can be extended for specific bot types
+export interface BaseBotConfig {
+  [key: string]: string | number | boolean;
 }
 
-// Generic version for type safety
-export interface TypedBotConfigField<T extends Record<string, any>> {
-  name: keyof T;
-  value: T[keyof T];
-}
-
+// Snapshot that represents the bot's configuration, to hold in database and re-use when chat is re-loaded
 export interface BotSnapshot {
   providerId: string;
   modelId: string;
-  config?: BotConfigField[];
+  botConfiguration?: BaseBotConfig;
 }

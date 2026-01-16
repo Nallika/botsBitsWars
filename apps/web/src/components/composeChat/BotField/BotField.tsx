@@ -1,38 +1,47 @@
 'use client';
 
-import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useMemo } from 'react';
 import { debounce } from 'lodash';
 
-import { BotConfigField, BotConfigSchemaField } from '@repo/shared-types/src';
+import { BaseBotConfig, BotConfigSchemaField } from '@repo/shared-types/src';
+import { botField } from 'apps/web/src/types';
 import { Input, Range, Radio } from '../../ui';
 
 interface BotFieldProps {
-  fieldData?: BotConfigField;
+  fieldValue: BaseBotConfig['value'];
   schema: BotConfigSchemaField;
-  updateFieldData: (fieldData: BotConfigField) => void;
+  updateFieldData: (fieldData: botField) => void;
 }
+
+// Debounce time for bot configuration field changes in milliseconds
+const FIELD_CHANGE_DEBOUNCE_MS = 300;
 
 /**
  * Component represents single bot configuration field, can be either number, string or boolean
  * Renders appropriate input by provided properties
- * 
+ *
  * @param
- * - fieldData: existing field data (name, value)
+ * - fieldValue: existing field value
  * - schema: field schema defining type, name, defaultValue, min, max, step
  */
-export const BotField: React.FC<BotFieldProps> = ({ fieldData, schema, updateFieldData}) => {
-  const name = fieldData?.name || schema.name;
-  const [value, setValue] = useState(fieldData?.value || schema.defaultValue);
+export const BotField: React.FC<BotFieldProps> = ({
+  fieldValue,
+  schema,
+  updateFieldData,
+}) => {
+  const [value, setValue] = useState(fieldValue);
 
-  const updateValue = useMemo(() => debounce((val: BotConfigField['value']) => {
-    updateFieldData({ name, value: val });
-  }, 300), []);
+  const updateValue = useMemo(
+    () =>
+      debounce((field: botField) => {
+        updateFieldData(field);
+      }, FIELD_CHANGE_DEBOUNCE_MS),
+    []
+  );
 
-  const handleChange = (
-    newValue: BotConfigField['value'],
-  ) => {
+  const handleChange = (newValue: BaseBotConfig['value']) => {
     setValue(newValue);
-    updateValue(newValue);
+    updateValue({ name: schema.name, value: newValue });
   };
 
   const renderInput = () => {
@@ -42,22 +51,22 @@ export const BotField: React.FC<BotFieldProps> = ({ fieldData, schema, updateFie
         if (schema.min !== undefined && schema.max !== undefined) {
           return (
             <Range
-              name={name}
+              name={schema.name}
               value={value as number}
               min={schema.min}
               max={schema.max}
               step={schema.step ?? 1}
-              onChange={(val) => handleChange(val)}
+              onChange={val => handleChange(val)}
             />
           );
         }
 
         return (
           <Input
-            name={name}
+            name={schema.name}
             type="number"
             value={value as number}
-            onChange={(e) => {
+            onChange={e => {
               const numValue = parseFloat(e.target.value);
               if (!isNaN(numValue)) {
                 handleChange(numValue);
@@ -73,10 +82,10 @@ export const BotField: React.FC<BotFieldProps> = ({ fieldData, schema, updateFie
       case 'string':
         return (
           <Input
-            name={name}
+            name={schema.name}
             type="text"
             value={value as string}
-            onChange={(e) => handleChange(e.target.value)}
+            onChange={e => handleChange(e.target.value)}
             placeholder={`Enter ${schema.name}`}
             {...(schema.min !== undefined && { minLength: schema.min })}
             {...(schema.max !== undefined && { maxLength: schema.max })}
@@ -86,26 +95,20 @@ export const BotField: React.FC<BotFieldProps> = ({ fieldData, schema, updateFie
       case 'boolean':
         return (
           <Radio
-            name={name}
+            name={schema.name}
             checked={value as boolean}
-            onChange={(e) => handleChange(e.target.checked)}
+            onChange={e => handleChange(e.target.checked)}
           />
         );
 
       default:
-        return (
-          <div>
-            Unsupported field type: {schema.type}
-          </div>
-        );
+        return <div>Unsupported field type: {schema.type}</div>;
     }
   };
 
   return (
     <div>
-      <label>
-        {schema.name}
-      </label>
+      <label>{schema.name}</label>
       {renderInput()}
     </div>
   );

@@ -21,26 +21,30 @@ const ChatSessionSchema = new Schema<IChatSession>({
     required: true,
     ref: 'User',
   },
-  botsSnapshots: [{
-    providerId: {
-      type: String,
-      required: true,
-    },
-    modelId: {
-      type: String,
-      required: true,
-    },
-    config: [{
-      name: {
+  botsSnapshots: [
+    {
+      providerId: {
         type: String,
         required: true,
       },
-      value: {
-        type: Schema.Types.Mixed,
+      modelId: {
+        type: String,
         required: true,
       },
-    }],
-  }],
+      config: [
+        {
+          name: {
+            type: String,
+            required: true,
+          },
+          value: {
+            type: Schema.Types.Mixed,
+            required: true,
+          },
+        },
+      ],
+    },
+  ],
   modeId: {
     type: String,
     required: true,

@@ -1,9 +1,10 @@
 import { BotMessage } from '@repo/shared-types';
 
-import { BaseBot } from '../bot/BaseBot';
+import { ChatBot } from '../bot/ChatBot';
 import { SocketManager } from '../socket/SocketManager';
-import { DefaultChatMode, ChatModeRegistry, CHAT_MODE_ENUM } from '../chatMode';
+import { DefaultChatMode, ChatModeRegistry } from '../chatMode';
 import { logger } from '../logger';
+import { CHAT_MODE_ENUM } from '../../types';
 
 /**
  * Manages bot interactions for a specific chat session.
@@ -12,14 +13,14 @@ import { logger } from '../logger';
  */
 export class ChatOrchestrator {
   private sessionId: string;
-  private bots: Array<BaseBot>;
+  private bots: Array<ChatBot>;
   private modeId: string;
   private chatMode: DefaultChatMode;
   private socketManager: SocketManager;
 
   constructor(
     sessionId: string,
-    bots: Array<BaseBot>,
+    bots: Array<ChatBot>,
     modeId: CHAT_MODE_ENUM,
     socketManager: SocketManager
   ) {
@@ -30,21 +31,18 @@ export class ChatOrchestrator {
     this.socketManager = socketManager;
   }
 
+  // Initialize socket listener, setting up message streams and bot processing
   async initializeChat(): Promise<void> {
     try {
-      const messageStream = this.socketManager.getMessageSubject(this.sessionId);
+      const messageStream = this.socketManager.getMessageSubject(
+        this.sessionId
+      );
 
-      this.chatMode.initializeBots(this.bots);
+      this.chatMode.addBots(this.bots);
       this.chatMode.setupMessageProcessing(
         messageStream,
         this.handleBotResponse.bind(this)
       );
-
-      logger.info('ChatOrchestrator initialized successfully', {
-        sessionId: this.sessionId,
-        botCount: this.bots.length,
-        modeId: this.modeId,
-      });
     } catch (error) {
       logger.error('Failed to initialize ChatOrchestrator', {
         sessionId: this.sessionId,
@@ -52,7 +50,6 @@ export class ChatOrchestrator {
       });
       throw error;
     }
-   
   }
 
   /**

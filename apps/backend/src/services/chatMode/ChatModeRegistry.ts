@@ -1,7 +1,7 @@
 import { ChatModeInfo } from '@repo/shared-types';
 
 import { DefaultChatMode } from './DefaultChatMode';
-import { CHAT_MODE_ENUM } from './chatModeTypes';
+import { CHAT_MODE_ENUM } from '../../types';
 
 /**
  * Registry for managing chat mode instances system-wide.

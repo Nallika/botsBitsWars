@@ -13,21 +13,23 @@ import styles from './styles.module.scss';
  * Display bot forms, add new form
  */
 export const AddBotLayout: React.FC = () => {
-  const {
-    addNewBot,
-    selectedChatMode,
-    selectedBots,
-  } = useComposeChatStore();
+  const { addNewBot, selectedChatMode, selectedBots } = useComposeChatStore();
 
-  const showAddButton = selectedChatMode && selectedChatMode.maxBots > selectedBots.length;
+  const showAddButton =
+    selectedChatMode && selectedChatMode.maxBots > selectedBots.length;
 
   return (
     <Card>
-      {selectedBots.map((botData) => (
+      {selectedBots.map(botData => (
         <BotForm key={botData.botId} botData={botData} />
       ))}
       {showAddButton && (
-        <Button variant="transparent" size="small" onClick={addNewBot} className={styles.button}>
+        <Button
+          variant="transparent"
+          size="small"
+          onClick={addNewBot}
+          className={styles.button}
+        >
           {'New Bot'}
         </Button>
       )}

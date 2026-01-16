@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 
-import { Input} from '../../ui';
+import { Input } from '../../ui';
 import { Button } from '../../ui';
 import styles from './styles.module.scss';
 

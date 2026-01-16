@@ -1,8 +1,8 @@
 import { ChatOrchestrator } from './ChatOrchestrator';
 import { logger } from '../logger';
 import { SocketManager } from '../socket/SocketManager';
-import { BaseBot } from '../bot';
-import { CHAT_MODE_ENUM } from '../chatMode';
+import { ChatBot } from '../bot';
+import { CHAT_MODE_ENUM } from '../../types';
 
 /**
  * Registry to manage ChatOrchestrator instances per session.
@@ -16,12 +16,12 @@ export class ChatRegistry {
    */
   static createOrchestrator(
     sessionId: string,
-    bots: Array<BaseBot>,
+    bots: Array<ChatBot>,
     modeId: CHAT_MODE_ENUM,
     socketManager: SocketManager
   ): ChatOrchestrator {
+    // Remove existing orchestrator to replace with new one
     if (this.map.get(sessionId)) {
-      logger.warn('ChatOrchestrator already exists', { sessionId });
       this.removeOrchestrator(sessionId);
     }
 
@@ -32,8 +32,6 @@ export class ChatRegistry {
       socketManager
     );
     this.map.set(sessionId, orchestrator);
-
-    logger.info('ChatOrchestrator created and stored', { sessionId });
 
     return orchestrator;
   }

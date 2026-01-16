@@ -7,24 +7,16 @@ import {
   ChatModeInfo,
 } from '@repo/shared-types';
 
-import { BaseBot } from '../bot';
+import { ChatBot } from '../bot';
 import { generateMessageId } from '../../utils/helpers';
 import { logger } from '../logger';
-import { CHAT_MODE_ENUM } from './chatModeTypes';
-
-export interface ChatModeInterface {
-  bots: Map<string, BaseBot>;
-  initializeBots(bots: BaseBot[]): void;
-  setupMessageProcessing(
-    messageStream: Observable<ChatMessageType>,
-    onBotResponse: (message: BotMessage) => void
-  ): void;
-}
+import { CHAT_MODE_ENUM, ChatModeInterface } from '../../types';
 
 /**
  * Default chat mode implementation
  */
 export class DefaultChatMode implements ChatModeInterface {
+  // @todo should we hold it here ?
   static readonly modeId: CHAT_MODE_ENUM = CHAT_MODE_ENUM.DEFAULT;
   static readonly minBots: number = 1;
   static readonly maxBots: number = 5;
@@ -32,7 +24,7 @@ export class DefaultChatMode implements ChatModeInterface {
   static readonly description: string =
     'All selected bots respond to each message';
 
-  bots: Map<string, BaseBot> = new Map();
+  bots: ChatBot[] = [];
   private messageSubscription?: Subscription;
 
   static getModeInfo(): ChatModeInfo {
@@ -45,13 +37,8 @@ export class DefaultChatMode implements ChatModeInterface {
     };
   }
 
-  initializeBots(bots: BaseBot[]): void {
-    // @TODO why group by provider ?
-    this.bots = new Map(
-      bots
-        .filter(bot => typeof bot.config.providerId === 'string')
-        .map(bot => [bot.config.providerId as string, bot])
-    );
+  addBots(bots: ChatBot[]): void {
+    this.bots = bots;
   }
 
   setupMessageProcessing(
@@ -76,9 +63,7 @@ export class DefaultChatMode implements ChatModeInterface {
   async processUserMessage(
     userMessage: ChatMessageType
   ): Promise<BotMessage[]> {
-    const promises = Array.from(this.bots.values()).map(bot =>
-      bot.sendMessage(userMessage.content)
-    );
+    const promises = this.bots.map(bot => bot.sendMessage(userMessage.content));
 
     const responses = await Promise.all(promises);
 
@@ -98,12 +83,14 @@ export class DefaultChatMode implements ChatModeInterface {
       botName: response.botName,
       color: response.color,
       respondingToMessageId: userMessage.id,
-      processingTime: response.processingTime,
+      // @todo return it
+      // processingTime: response.processingTime,
     };
   }
 
   /**
-   * Cleanup subscriptions when chat mode is destroyed
+   * Cleanup subscriptions when chat mode is destroyed,
+   * @todo: call bots destroy here
    */
   destroy(): void {
     if (this.messageSubscription) {

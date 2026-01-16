@@ -2,6 +2,5 @@
  * OpenAI vendor module exports
  */
 
-export { OpenAIProvider } from './provider';
-export { OpenAIConfigManager } from './config';
+export { OpenAIProvider } from './OpenAIProvider';
 export * from './types';

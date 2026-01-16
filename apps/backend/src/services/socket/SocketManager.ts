@@ -227,12 +227,6 @@ export class SocketManager {
 
   public sendMessageToSession(sessionId: string, message: ChatMessageType) {
     this.io.to(sessionId).emit(SOCKET_EVENTS_ENUM.OUTPUT_MESSAGE, message);
-
-    logger.info('Message sent to session', {
-      text: message.content,
-      sessionId,
-      messageId: message.id,
-    });
   }
 
   /**

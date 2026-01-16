@@ -1,11 +1,10 @@
-import { BotInfo, BotSnapshot } from '@repo/shared-types';
+import { BotSnapshot, ProviderInfo } from '@repo/shared-types';
 
-import { BaseBot } from './BaseBot';
-import { OpenAIBot } from './OpenAIBot';
-
-export enum PROVIDERS_ENUM {
-  OPENAI = 'openai',
-}
+import { ChatBot } from './ChatBot';
+import { PROVIDERS_ENUM } from '../../types';
+import { OpenAIProvider } from '../../vendors/openai';
+import { BaseProvider } from '../../vendors/base/BaseProvider';
+import { logger } from '../logger';
 
 /**
  * Registry for managing bot instances system-wide.
@@ -13,37 +12,60 @@ export enum PROVIDERS_ENUM {
  */
 export class BotRegistry {
   /**
-   * @todo: probably should add configuration for bot
-   *
+   * Cached provider instances keyed by provider ID.
+   */
+  private providers = new Map<PROVIDERS_ENUM, BaseProvider>();
+
+  /**
+   * Lazily instantiate and return a provider instance.
+   */
+  getProvider(providerId: PROVIDERS_ENUM): BaseProvider {
+    if (!this.providers.has(providerId)) {
+      switch (providerId) {
+        case PROVIDERS_ENUM.OPENAI:
+          this.providers.set(providerId, new OpenAIProvider());
+          break;
+        // TODO: Add other providers here (GeminiProvider, etc.)
+        default:
+          throw new Error(`Unsupported provider: ${providerId}`);
+      }
+    }
+
+    const provider = this.providers.get(providerId);
+    if (!provider) {
+      throw new Error(`Provider not found: ${providerId}`);
+    }
+
+    return provider;
+  }
+
+  /**
    * Get a bot instance by provider ID.
    * @param provider - LLM provider for bot
    * @returns The bot instance or null if not found
    */
-  static createBot(botData: BotSnapshot): BaseBot {
+  createBot(botData: BotSnapshot): ChatBot {
     try {
       switch (botData.providerId) {
-      case PROVIDERS_ENUM.OPENAI:
-        return new OpenAIBot(botData);
-      // TODO: Add other providers here (GeminiBot, etc.)
-      default:
-        throw new Error(`Unsupported provider: ${botData.providerId}`);
+        // @TODO Add uniq bot class for each provider, hold there provider related types, structures, e.t.c.
+        case PROVIDERS_ENUM.OPENAI:
+          return new ChatBot({
+            provider: this.getProvider(PROVIDERS_ENUM.OPENAI),
+            modelId: botData.modelId,
+            configurationFields: botData.botConfiguration || {},
+          });
+        // TODO: Add other providers here (GeminiBot, etc.)
+        default:
+          throw new Error(`Unsupported provider: ${botData.providerId}`);
       }
     } catch (error) {
-      console.error('Error creating bot:', error);
+      logger.error('Error creating bot:', error);
       throw error;
     }
   }
 
-  static getAvailableProviders(): BotInfo[] {
-    // @TODO: refactor this
-    const openAiBot = new OpenAIBot({
-        providerId: PROVIDERS_ENUM.OPENAI,
-        modelId: 'gpt-3.5-turbo',
-        config: [],
-      });
-    
-    return [
-      openAiBot.getSchema(),
-    ];
+  // Retrieve information about all available providers and their bots
+  async getAvailableProviders(): Promise<ProviderInfo[]> {
+    return [await this.getProvider(PROVIDERS_ENUM.OPENAI).getProviderInfo()];
   }
 }
