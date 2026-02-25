@@ -19,7 +19,6 @@ build
 
 # other
 dist/
-docs/
 
 # misc
 .DS_Store
